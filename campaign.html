@@ -75,8 +75,9 @@
     .territory-label-surface{position:absolute;inset:0;z-index:660;pointer-events:none;overflow:hidden}
     .territory-label-node{position:absolute;left:0;top:0;display:block;padding:0;border:none;background:transparent;transform:translate(-50%,-50%) scale(var(--territory-label-scale,1));transform-origin:center center;pointer-events:none}
     .territory-number-badge{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:1.85rem;height:1.85rem;padding:0 .52rem;border-radius:999px;background:linear-gradient(160deg,rgba(16,32,49,.97),rgba(46,69,94,.9));color:#f7fbff;border:1.3px solid rgba(255,255,255,.9);font:700 .78rem/1 var(--font-ui);box-shadow:0 8px 18px rgba(9,20,35,.32)}
-    .territory-number-badge.done{background:linear-gradient(160deg,#16734b,#21a467)}
-    .territory-number-badge.selected{background:linear-gradient(160deg,#0f8a74,#1ca487)}
+    .territory-number-badge.done{background:linear-gradient(160deg,#16734b,#21a467);box-shadow:0 10px 22px rgba(16,102,57,.3)}
+    .territory-number-badge.selected{background:linear-gradient(160deg,#1c4e86,#4b78c8);box-shadow:0 10px 22px rgba(20,58,112,.34)}
+    .territory-number-badge.selected-done{border-color:rgba(186,244,208,.95);box-shadow:0 0 0 2px rgba(31,138,85,.24),0 10px 22px rgba(20,58,112,.34)}
     .territory-number-badge .territory-number-text{display:block;transform:translateY(.02rem)}
     .empty-note{font-size:.86rem;font-weight:600;color:var(--muted)}
     @media (max-width:1180px){.layout{grid-template-columns:minmax(290px,330px) minmax(0,1fr);padding:.9rem}.card{padding:.92rem}.auth-card{width:min(620px,calc(100vw - 2rem))}}
@@ -221,7 +222,8 @@
     const TERRITORY_STYLES = {
       open: { color: "#b98224", weight: 2.8, opacity: 0.96, fillColor: "#f3c76d", fillOpacity: 0.18 },
       done: { color: "#1f8a55", weight: 3, opacity: 1, fillColor: "#7ee2a7", fillOpacity: 0.34 },
-      selected: { color: "#0f8a74", weight: 5, opacity: 1, fillColor: "#63d4be", fillOpacity: 0.24 }
+      selected: { color: "#1c4e86", weight: 5, opacity: 1, fillColor: "#8bb3ef", fillOpacity: 0.22 },
+      selectedDone: { color: "#1c4e86", weight: 5, opacity: 1, fillColor: "#7ee2a7", fillOpacity: 0.34 }
     };
     const $ = (id) => document.getElementById(id);
     function asCleanText(value, fallback = "") {
@@ -617,6 +619,7 @@
       const classes = ["territory-number-badge"];
       if (completed) classes.push("done");
       if (isSelected) classes.push("selected");
+      if (completed && isSelected) classes.push("selected-done");
       const width = Math.max(34, Math.min(72, 24 + (String(text).length * 8)));
       return L.divIcon({
         className: classes.join(" "),
@@ -1497,7 +1500,7 @@
         node.style.top = `${placement.y}px`;
         node.style.setProperty("--territory-label-scale", String(placement.scale));
         const badge = document.createElement("span");
-        badge.className = `territory-number-badge${item.completed ? " done" : ""}${item.isSelected ? " selected" : ""}`;
+        badge.className = `territory-number-badge${item.completed ? " done" : ""}${item.isSelected ? " selected" : ""}${item.completed && item.isSelected ? " selected-done" : ""}`;
         const labelText = document.createElement("span");
         labelText.className = "territory-number-text";
         labelText.textContent = item.text;
@@ -1526,18 +1529,27 @@
         ? Math.max(13, Math.min(18, state.map.getMaxZoom()))
         : 18;
       const fitOptions = { padding: [12, 12], maxZoom, marginPx: 10 };
-      if (typeof state.map.invalidateSize === "function") state.map.invalidateSize(true);
-      const didFit = fitMapToCoordsAtMaxSafeZoom(state.map, coords, fitOptions);
+      const performFit = () => {
+        if (!state.map || !state.territories.length) return false;
+        if (typeof state.map.invalidateSize === "function") state.map.invalidateSize(true);
+        const didFocus = fitMapToCoordsAtMaxSafeZoom(state.map, coords, fitOptions);
+        scheduleLabelRender();
+        return didFocus;
+      };
+      const didFit = performFit();
       if (options.stabilize !== false) {
         const enqueue = typeof window.requestAnimationFrame === "function"
           ? window.requestAnimationFrame.bind(window)
           : (callback => window.setTimeout(callback, 0));
-        enqueue(() => {
-          if (!state.map || !state.territories.length) return;
-          if (typeof state.map.invalidateSize === "function") state.map.invalidateSize(true);
-          fitMapToCoordsAtMaxSafeZoom(state.map, coords, fitOptions);
-          scheduleLabelRender();
-        });
+        const remainingPasses = Math.max(1, Number(options.passes) || 3) - 1;
+        const runStabilizedPass = (remaining) => {
+          if (remaining <= 0) return;
+          enqueue(() => {
+            if (!performFit()) return;
+            runStabilizedPass(remaining - 1);
+          });
+        };
+        runStabilizedPass(remainingPasses);
       }
       return didFit;
     }
@@ -1567,7 +1579,9 @@
         territory.polygon.forEach((point) => boundsPoints.push(point));
         const isSelected = territory.id === state.selectedId;
         const baseStyle = territory.completed ? TERRITORY_STYLES.done : TERRITORY_STYLES.open;
-        const style = isSelected ? TERRITORY_STYLES.selected : baseStyle;
+        const style = isSelected
+          ? (territory.completed ? TERRITORY_STYLES.selectedDone : TERRITORY_STYLES.selected)
+          : baseStyle;
         const polygon = L.polygon(territory.polygon, {
           ...style,
           smoothFactor: 0,

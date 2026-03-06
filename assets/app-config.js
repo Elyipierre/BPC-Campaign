@@ -1,10 +1,17 @@
 (function initTerritoryAppConfig(globalScope) {
   const checkedInDefaults = Object.freeze({
+    // Leave blank so the app auto-detects the active origin.
+    // On GitHub Pages this repo resolves to:
+    // https://elyipierre.github.io/BPC-Campaign/
+    // On localhost it resolves to:
+    // http://127.0.0.1:4173/
     siteBaseUrl: "",
     githubPagesBasePath: "",
     managerPagePath: "Territory%20Management.html",
     campaignPagePath: "campaign.html",
     localhostBaseUrl: "http://127.0.0.1:4173/",
+    // Fill these with your public Supabase project values to enable
+    // live multi-device campaign sync on GitHub Pages.
     supabaseUrl: "",
     supabaseAnonKey: ""
   });

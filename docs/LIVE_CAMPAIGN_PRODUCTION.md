@@ -2,7 +2,8 @@
 
 This app is already published on GitHub Pages:
 
-- Site: `https://elyipierre.github.io/BPC-Campaign/`
+- Campaign landing page: `https://elyipierre.github.io/BPC-Campaign/`
+- Campaign direct page: `https://elyipierre.github.io/BPC-Campaign/campaign.html`
 - Manager: `https://elyipierre.github.io/BPC-Campaign/Territory%20Management.html`
 
 Local campaigns already work without Supabase. The steps below are only for shared live campaigns across different phones and devices.

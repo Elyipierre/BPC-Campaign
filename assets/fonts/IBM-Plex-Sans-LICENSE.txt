@@ -1,0 +1,13 @@
+IBM Plex Sans is distributed under the SIL Open Font License, Version 1.1.
+
+This project self-hosts IBM Plex Sans webfont files for local delivery only.
+Upstream font family:
+https://github.com/IBM/plex
+
+OFL summary:
+- The fonts may be used, studied, modified, and redistributed freely.
+- The fonts may not be sold by themselves.
+- Reserved font names and full license details are defined by the upstream project.
+
+If you need the complete license text, refer to the upstream repository:
+https://github.com/IBM/plex/blob/master/LICENSE.txt

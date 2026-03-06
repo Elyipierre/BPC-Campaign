@@ -1,0 +1,27 @@
+{
+  "providerId": "thatsthem",
+  "displayName": "Thatsthem",
+  "allowedModes": [
+    "manual_interim"
+  ],
+  "mode": "manual_interim",
+  "entrypoints": {
+    "peopleSearch": "https://thatsthem.com/people-search",
+    "reverseAddressLookup": "https://thatsthem.com/reverse-address-lookup",
+    "reversePhoneLookup": "https://thatsthem.com/reverse-phone-lookup",
+    "reverseEmailLookup": "https://thatsthem.com/reverse-email-lookup"
+  },
+  "manualCheckpoints": [
+    {
+      "id": "operator_review",
+      "label": "Review search results and confirm best household match."
+    }
+  ],
+  "selectors": {
+    "resultCard": "article, .record, .result, .card",
+    "name": ".name, [itemprop='name'], h2, h3",
+    "phone": "a[href^='tel:'], .phone, [itemprop='telephone']",
+    "email": "a[href^='mailto:'], .email, [itemprop='email']",
+    "unit": ".unit, .apt, .apartment"
+  }
+}

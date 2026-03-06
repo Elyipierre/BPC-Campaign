@@ -1,0 +1,35 @@
+{
+  "name": "territory-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:local": "node scripts/start-localhost.cjs",
+    "test": "vitest run",
+    "test:api": "vitest run tests/overture-api.test.mjs",
+    "test:watch": "vitest",
+    "test:e2e:local": "node scripts/playwright-local-only-smoke.cjs",
+    "align:backup": "node scripts/align-territory-backup.cjs",
+    "verify": "npm run test",
+    "overture:etl": "node scripts/overture-monthly-etl.cjs",
+    "overture:api": "node server/overture-api.cjs",
+    "overture:ny": "python scripts/overture-ny-export.py",
+    "overture:buildings-from-addresses": "python scripts/overture-addresses-to-buildings.py",
+    "overture:merge-units": "python scripts/overture-augment-address-units.py",
+    "overture:units:sync": "python scripts/overture-augment-address-units.py --source-profile ny_open_units --source-profile-file data/supplement/source-profiles/ny-open-unit-sources.json --verify-only --profile-export-dir tmp/unit-sync",
+    "overture:units:verify": "python scripts/overture-augment-address-units.py --source-profile ny_open_units --source-profile-file data/supplement/source-profiles/ny-open-unit-sources.json --verify-only",
+    "overture:package-state": "python scripts/overture-build-state-package.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "jsdom": "^28.1.0",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2",
+    "xlsx": "^0.18.5"
+  }
+}

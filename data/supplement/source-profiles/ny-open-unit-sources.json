@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "profileId": "ny_open_units",
+  "state": "NY",
+  "domain": "data.cityofnewyork.us",
+  "scheme": "https",
+  "sources": [
+    {
+      "enabled": true,
+      "state": "NY",
+      "sourceId": "nyc_sales_rolling",
+      "datasetId": "usep-8jbt",
+      "confidenceBase": 0.85,
+      "fieldMap": {
+        "address": "address",
+        "unit": "apartment_number",
+        "postcode": "zip_code",
+        "city": "borough",
+        "sourceRecordId": ":id",
+        "updatedAt": ":updated_at"
+      }
+    },
+    {
+      "enabled": true,
+      "state": "NY",
+      "sourceId": "nyc_sales_annualized",
+      "datasetId": "w2pb-icbu",
+      "confidenceBase": 0.85,
+      "fieldMap": {
+        "address": "address",
+        "unit": "apartment_number",
+        "postcode": "zip_code",
+        "city": "borough",
+        "lat": "latitude",
+        "lng": "longitude",
+        "sourceRecordId": ":id",
+        "updatedAt": ":updated_at"
+      }
+    },
+    {
+      "enabled": true,
+      "state": "NY",
+      "sourceId": "nyc_hpd_violations",
+      "datasetId": "wvxf-dwi5",
+      "confidenceBase": 0.7,
+      "fieldMap": {
+        "houseNumber": "housenumber",
+        "street": "streetname",
+        "unit": "apartment",
+        "postcode": "zip",
+        "city": "boro",
+        "lat": "latitude",
+        "lng": "longitude",
+        "sourceRecordId": "violationid",
+        "updatedAt": ":updated_at"
+      }
+    },
+    {
+      "enabled": false,
+      "state": "NY",
+      "sourceId": "nys_county_placeholder_1",
+      "datasetId": "county-source-id",
+      "confidenceBase": 0.6,
+      "fieldMap": {
+        "address": "address",
+        "unit": "unit",
+        "postcode": "zip",
+        "city": "city",
+        "lat": "latitude",
+        "lng": "longitude",
+        "sourceRecordId": ":id",
+        "updatedAt": ":updated_at"
+      }
+    },
+    {
+      "enabled": false,
+      "state": "NY",
+      "sourceId": "nys_county_placeholder_2",
+      "datasetId": "county-source-id-2",
+      "confidenceBase": 0.6,
+      "fieldMap": {
+        "address": "address",
+        "unit": "unit",
+        "postcode": "zip",
+        "city": "city",
+        "lat": "latitude",
+        "lng": "longitude",
+        "sourceRecordId": ":id",
+        "updatedAt": ":updated_at"
+      }
+    }
+  ]
+}

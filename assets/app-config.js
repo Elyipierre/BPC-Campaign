@@ -12,8 +12,8 @@
     localhostBaseUrl: "http://127.0.0.1:4173/",
     // Fill these with your public Supabase project values to enable
     // live multi-device campaign sync on GitHub Pages.
-    supabaseUrl: "",
-    supabaseAnonKey: ""
+    supabaseUrl: "https://dlncebwzunuxouyxteir.supabase.co",
+    supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsbmNlYnd6dW51eG91eXh0ZWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NDQ1NzgsImV4cCI6MjA4ODQyMDU3OH0.WyM45C1Co_XmG-p_g793p3mImAIHqVWRpdxGer_95qQ"
   });
   const existing = globalScope && globalScope.TERRITORY_APP_CONFIG && typeof globalScope.TERRITORY_APP_CONFIG === "object"
     ? { ...checkedInDefaults, ...globalScope.TERRITORY_APP_CONFIG }

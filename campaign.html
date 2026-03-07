@@ -16,11 +16,11 @@
     :root{--bg1:#edf3f7;--bg2:#dfe8ee;--text:#102031;--muted:#5e6f80;--accent:#127863;--accent2:#1c4e86;--open:#b98224;--done:#1f8a55;--panel:rgba(255,255,255,.88);--panel2:#f8fbfe;--border:rgba(16,32,49,.12);--ring:0 0 0 3px rgba(18,120,99,.18);--shadow:0 18px 40px rgba(16,32,49,.12);--font-ui:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;--font-display:"IBM Plex Sans","Segoe UI",system-ui,sans-serif}
     *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0}
     body{font-family:var(--font-ui);color:var(--text);display:flex;flex-direction:column;background:radial-gradient(960px 520px at 6% 0%,rgba(18,120,99,.12),transparent 42%),radial-gradient(720px 520px at 102% 0%,rgba(28,78,134,.12),transparent 42%),linear-gradient(180deg,var(--bg1),var(--bg2))}
-    .shell-header{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding:1rem 1.2rem .85rem;border-bottom:1px solid rgba(255,255,255,.56);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));backdrop-filter:blur(10px)}
+    .shell-header{position:relative;z-index:920;overflow:visible;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding:1rem 1.2rem .85rem;border-bottom:1px solid rgba(255,255,255,.56);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));backdrop-filter:blur(10px)}
     .shell-title{margin:0;font:700 clamp(1.28rem,1.8vw,1.86rem)/1.02 var(--font-display);letter-spacing:-.03em}
     .shell-subtitle{margin:.25rem 0 0;color:var(--muted);font-size:.88rem;font-weight:600}
     .mode-chip{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:.35rem .8rem;border-radius:999px;background:rgba(15,138,116,.1);border:1px solid rgba(15,138,116,.18);font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0d6658}
-    .layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:1rem;padding:1rem}
+    .layout{position:relative;z-index:1;flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:1rem;padding:1rem}
     .sidebar{display:flex;flex-direction:column;gap:.8rem;min-height:0}
     .card{background:var(--panel);border:1px solid rgba(255,255,255,.65);border-radius:18px;padding:1rem;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
     .label{display:block;margin-bottom:.3rem;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -45,12 +45,21 @@
     .btn.secondary{background:#edf3f8;color:#102031;border-color:rgba(16,32,49,.14);box-shadow:0 10px 20px rgba(16,32,49,.08)}
     .btn.compact{min-height:36px;padding:.55rem .72rem;font-size:.82rem}
     .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .session-stack{display:grid;gap:.6rem;justify-items:end;align-self:flex-start;position:relative;z-index:2}
     .session-chip{display:flex;align-items:center;gap:.65rem;min-width:0;padding:.45rem .7rem;border-radius:16px;border:1px solid rgba(16,32,49,.12);background:rgba(255,255,255,.72);box-shadow:0 12px 24px rgba(16,32,49,.1)}
+    .session-chip.clickable{cursor:pointer}
+    .session-chip.clickable:hover{border-color:rgba(18,120,99,.28);box-shadow:0 14px 28px rgba(16,32,49,.14)}
     .session-avatar{width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;border:1px solid rgba(16,32,49,.12);background:linear-gradient(160deg,rgba(15,138,116,.16),rgba(24,77,139,.14));font-size:.88rem;font-weight:800;color:#0d6658}
+    .session-avatar.button-reset{cursor:pointer}
     .session-avatar img{display:block;width:100%;height:100%;object-fit:cover}
     .session-name{font-size:.82rem;font-weight:800;color:#132436}
     .session-meta{font-size:.72rem;font-weight:700;color:#607083;word-break:break-word}
     .session-actions{display:flex;justify-content:flex-end}
+    .button-reset{appearance:none;border:none;padding:0;background:none;color:inherit;font:inherit;text-align:inherit}
+    .local-worker-panel{position:fixed;left:1rem;top:1rem;z-index:1320;display:grid;gap:.48rem;width:min(320px,calc(100vw - 2rem));padding:.72rem .78rem;border-radius:16px;border:1px solid rgba(16,32,49,.12);background:rgba(255,255,255,.99);box-shadow:0 22px 38px rgba(16,32,49,.18)}
+    .local-worker-panel[hidden]{display:none!important}
+    .local-worker-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;align-items:end}
+    .local-worker-help{font-size:.74rem;font-weight:700;color:#607083;line-height:1.4}
     .auth-gate{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(16,32,49,.52);backdrop-filter:blur(8px)}
     .auth-gate[hidden]{display:none!important}
     .auth-card{position:relative;overflow:hidden;width:min(560px,calc(100vw - 2rem));padding:1.2rem 1.25rem;border-radius:24px;border:1px solid rgba(255,255,255,.62);background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(244,248,252,.99));box-shadow:0 28px 70px rgba(16,32,49,.28)}
@@ -81,7 +90,7 @@
     .territory-number-badge .territory-number-text{display:block;transform:translateY(.02rem)}
     .empty-note{font-size:.86rem;font-weight:600;color:var(--muted)}
     @media (max-width:1180px){.layout{grid-template-columns:minmax(290px,330px) minmax(0,1fr);padding:.9rem}.card{padding:.92rem}.auth-card{width:min(620px,calc(100vw - 2rem))}}
-    @media (max-width:980px){.shell-header{flex-direction:column;align-items:stretch;padding:.9rem 1rem .8rem}.layout{grid-template-columns:1fr;padding:.85rem}.sidebar{order:2}.map-shell{order:1;min-height:60vh}.actions{grid-template-columns:1fr}.session-chip{width:100%}.session-actions{justify-content:flex-start}.auth-card{padding:1.05rem 1rem;border-radius:20px}}
+    @media (max-width:980px){.shell-header{flex-direction:column;align-items:stretch;padding:.9rem 1rem .8rem}.layout{grid-template-columns:1fr;padding:.85rem}.sidebar{order:2}.map-shell{order:1;min-height:60vh}.actions{grid-template-columns:1fr}.session-stack{justify-items:stretch}.session-chip{width:100%}.session-actions{justify-content:flex-start}.local-worker-panel{width:min(360px,calc(100vw - 1.5rem))}.auth-card{padding:1.05rem 1rem;border-radius:20px}}
     @media (max-width:720px){.shell-title{font-size:1.48rem}.shell-subtitle{font-size:.82rem}.card{padding:.82rem;border-radius:16px}.kpi-grid{grid-template-columns:1fr 1fr}.selected-card{padding:.72rem}.auth-eyebrow{font-size:.68rem}.auth-title{font-size:1.72rem}.auth-status{padding:.72rem .8rem}.legend{left:.75rem;right:.75rem;bottom:.75rem;max-width:none}.map-shell{min-height:54vh;border-radius:20px}}
   </style>
 </head>
@@ -91,17 +100,25 @@
       <h1 class="shell-title">Territory Management - Campaigns</h1>
       <p class="shell-subtitle">Same-computer local access by default, with optional Google-authenticated live progress when published.</p>
     </div>
-    <div style="display:grid;gap:.6rem;justify-items:end">
+    <div id="sessionStack" class="session-stack">
       <div id="modeChip" class="mode-chip">All Territories</div>
-      <div id="workerSessionChip" class="session-chip">
+      <button id="workerSessionChip" class="session-chip button-reset" type="button" aria-expanded="false" aria-haspopup="dialog">
         <div id="workerAvatar" class="session-avatar" aria-hidden="true">GW</div>
         <div style="min-width:0">
           <div id="workerDisplayName" class="session-name">Local campaign ready</div>
           <div id="workerDisplayMeta" class="session-meta">Open from Territory Management for instant same-computer use, or use live Google sign-in when published.</div>
         </div>
-      </div>
+      </button>
       <div class="session-actions">
         <button id="btnSignOut" class="btn secondary compact" type="button" hidden>Sign Out</button>
+      </div>
+      <div id="localWorkerEditor" class="local-worker-panel" hidden>
+        <label class="label" for="localWorkerName" style="margin-bottom:0">Publisher Name</label>
+        <div class="local-worker-row">
+          <input id="localWorkerName" type="text" maxlength="80" autocomplete="name" placeholder="Enter your display name" />
+          <button id="btnSaveLocalWorkerName" class="btn secondary compact" type="button">Save Name</button>
+        </div>
+        <div id="localWorkerNameHelper" class="local-worker-help">Enter your name to claim territories on this computer.</div>
       </div>
     </div>
   </header>
@@ -175,7 +192,7 @@
     const STORAGE_KEY_LOCAL_CAMPAIGN_SIGNAL = "terr_local_campaign_signal_v1";
     const CAMPAIGN_POLL_MS = 15000;
     const LOCAL_CAMPAIGN_SYNC_CHANNEL = "terr_local_campaign_sync_v1";
-    const LOCAL_CAMPAIGN_WORKER_NAME = "Local Worker";
+    const LEGACY_LOCAL_CAMPAIGN_WORKER_ID = "local-worker";
     const INITIAL_CAMPAIGN_MODE = CAMPAIGN_CODE
       ? (REQUESTED_CAMPAIGN_MODE === "local"
         ? "local"
@@ -213,6 +230,7 @@
       authMessage: "",
       authSubscription: null,
       localCampaignUrl: "",
+      localWorkerEditorOpen: false,
       localSync: {
         senderId: `worker_${Math.random().toString(36).slice(2, 10)}`,
         channel: null,
@@ -229,6 +247,26 @@
     function asCleanText(value, fallback = "") {
       const text = String(value == null ? fallback : value).replace(/\s+/g, " ").trim();
       return text || String(fallback || "");
+    }
+    function buildLocalViewerId(publicCode = CAMPAIGN_CODE) {
+      const code = asCleanText(publicCode, "LOCAL").toUpperCase() || "LOCAL";
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return `local:${code}:${window.crypto.randomUUID()}`;
+      }
+      return `local:${code}:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+    }
+    function normalizeLocalCampaignViewer(rawViewer, options = {}) {
+      const raw = rawViewer && typeof rawViewer === "object" ? rawViewer : {};
+      const publicCode = asCleanText(options.publicCode || CAMPAIGN_CODE, "").toUpperCase();
+      const userId = asCleanText(raw.user_id ?? raw.userId, "");
+      return {
+        signedIn: false,
+        userId: userId && userId !== LEGACY_LOCAL_CAMPAIGN_WORKER_ID ? userId : buildLocalViewerId(publicCode),
+        email: asCleanText(raw.email, "").toLowerCase(),
+        displayName: asCleanText(raw.display_name ?? raw.displayName, ""),
+        avatarUrl: asCleanText(raw.avatar_url ?? raw.avatarUrl, ""),
+        authorized: true
+      };
     }
     function normalizeTerritoryNo(value) {
       const text = String(value ?? "").trim();
@@ -295,6 +333,28 @@
       });
       return L.latLngBounds([[minLat, minLng], [maxLat, maxLng]]);
     }
+    function getBoundsCenter(bounds) {
+      if (!bounds) return null;
+      if (typeof bounds.getCenter === "function") {
+        try {
+          const center = bounds.getCenter();
+          const lat = Number(center && center.lat);
+          const lng = Number(center && center.lng);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+        } catch (_) { }
+      }
+      const sw = typeof bounds.getSouthWest === "function" ? bounds.getSouthWest() : null;
+      const ne = typeof bounds.getNorthEast === "function" ? bounds.getNorthEast() : null;
+      const south = Number(sw && sw.lat);
+      const west = Number(sw && sw.lng);
+      const north = Number(ne && ne.lat);
+      const east = Number(ne && ne.lng);
+      if (!Number.isFinite(south) || !Number.isFinite(west) || !Number.isFinite(north) || !Number.isFinite(east)) return null;
+      return {
+        lat: south + ((north - south) / 2),
+        lng: west + ((east - west) / 2)
+      };
+    }
     function safeFitMapBounds(targetMap, bounds, options = {}) {
       if (!targetMap || !bounds || typeof targetMap.fitBounds !== "function") return false;
       try {
@@ -337,7 +397,7 @@
         && maxX <= (size.x - marginPx)
         && maxY <= (size.y - marginPx);
     }
-    function maximizeMapZoomToCoords(targetMap, coords, maxZoom, marginPx = 8) {
+    function maximizeMapZoomToCoords(targetMap, coords, maxZoom, marginPx = 8, center = null) {
       if (!targetMap || typeof targetMap.getZoom !== "function" || typeof targetMap.setZoom !== "function") return;
       if (typeof targetMap.latLngToContainerPoint !== "function" || typeof targetMap.getSize !== "function") return;
       if (!Array.isArray(coords) || coords.length < 3) return;
@@ -346,10 +406,18 @@
       for (let step = 0; step < 8; step += 1) {
         if (zoom >= maxZoom) break;
         if (!coordsFitInContainer(targetMap, coords, marginPx)) break;
-        targetMap.setZoom(zoom + 1, { animate: false });
+        if (center && typeof targetMap.setView === "function") {
+          targetMap.setView(center, zoom + 1, { animate: false });
+        } else {
+          targetMap.setZoom(zoom + 1, { animate: false });
+        }
         if (typeof targetMap.invalidateSize === "function") targetMap.invalidateSize(true);
         if (!coordsFitInContainer(targetMap, coords, marginPx)) {
-          targetMap.setZoom(zoom, { animate: false });
+          if (center && typeof targetMap.setView === "function") {
+            targetMap.setView(center, zoom, { animate: false });
+          } else {
+            targetMap.setZoom(zoom, { animate: false });
+          }
           if (typeof targetMap.invalidateSize === "function") targetMap.invalidateSize(true);
           break;
         }
@@ -371,7 +439,34 @@
       const maxZoom = Number.isFinite(Number(options.maxZoom))
         ? Number(options.maxZoom)
         : (typeof targetMap.getMaxZoom === "function" && Number.isFinite(targetMap.getMaxZoom()) ? Number(targetMap.getMaxZoom()) : 18);
-      const didFit = safeFitMapBounds(targetMap, bounds, {
+      const center = getBoundsCenter(bounds);
+      let didFit = false;
+      const paddingPoint = window.L && typeof L.point === "function"
+        ? L.point(Number(padding[0]) || 0, Number(padding[1]) || 0)
+        : { x: Number(padding[0]) || 0, y: Number(padding[1]) || 0 };
+      if (center && typeof targetMap.getBoundsZoom === "function" && typeof targetMap.setView === "function") {
+        try {
+          let zoom = Number(targetMap.getBoundsZoom(bounds, false, paddingPoint));
+          if (Number.isFinite(zoom)) {
+            zoom = Math.max(0, Math.min(maxZoom, Math.floor(zoom)));
+            targetMap.setView(center, zoom, { animate: false });
+            if (typeof targetMap.invalidateSize === "function") targetMap.invalidateSize(true);
+            while (zoom > 0 && !coordsFitInContainer(targetMap, normalized, marginPx)) {
+              zoom -= 1;
+              targetMap.setView(center, zoom, { animate: false });
+              if (typeof targetMap.invalidateSize === "function") targetMap.invalidateSize(true);
+            }
+            didFit = coordsFitInContainer(targetMap, normalized, marginPx);
+            if (didFit) {
+              maximizeMapZoomToCoords(targetMap, normalized, maxZoom, marginPx, center);
+              return true;
+            }
+          }
+        } catch (_) {
+          didFit = false;
+        }
+      }
+      didFit = safeFitMapBounds(targetMap, bounds, {
         ...options,
         padding,
         maxZoom,
@@ -379,7 +474,7 @@
       });
       if (!didFit) return false;
       if (typeof targetMap.invalidateSize === "function") targetMap.invalidateSize(true);
-      maximizeMapZoomToCoords(targetMap, normalized, maxZoom, marginPx);
+      maximizeMapZoomToCoords(targetMap, normalized, maxZoom, marginPx, center);
       return true;
     }
     function pointInPolygonXY(pointXY, polygonXY) {
@@ -905,6 +1000,7 @@
           createdAt: asCleanText(rawCampaign.createdAt || rawCampaign.created_at || raw.createdAt, ""),
           updatedAt: asCleanText(rawCampaign.updatedAt || rawCampaign.updated_at || raw.updatedAt, "")
         },
+        viewer: normalizeLocalCampaignViewer(raw.viewer, { publicCode }),
         selectedTerritoryId: asCleanText(raw.selectedTerritoryId, ""),
         territories
       };
@@ -926,6 +1022,14 @@
           mode: "local",
           createdAt: snapshot.campaign.createdAt,
           updatedAt: snapshot.campaign.updatedAt
+        },
+        viewer: {
+          signedIn: false,
+          userId: asCleanText(snapshot.viewer && snapshot.viewer.userId, ""),
+          email: asCleanText(snapshot.viewer && snapshot.viewer.email, "").toLowerCase(),
+          displayName: asCleanText(snapshot.viewer && snapshot.viewer.displayName, ""),
+          avatarUrl: asCleanText(snapshot.viewer && snapshot.viewer.avatarUrl, ""),
+          authorized: true
         },
         selectedTerritoryId: asCleanText(snapshot.selectedTerritoryId, ""),
         territories: Array.isArray(snapshot.territories) ? snapshot.territories.map((territory) => ({
@@ -969,10 +1073,11 @@
         state.selectedId = "";
         state.mode = "local";
         state.syncMode = "local";
+        const viewer = normalizeLocalCampaignViewer({}, { publicCode: CAMPAIGN_CODE });
         state.viewer = normalizeCampaignViewer({
           signed_in: false,
-          user_id: "local-worker",
-          display_name: LOCAL_CAMPAIGN_WORKER_NAME,
+          user_id: viewer.userId,
+          display_name: viewer.displayName,
           authorized: true
         });
         state.authStatus = "local_missing";
@@ -996,8 +1101,10 @@
         : (state.territories.some((item) => item.id === normalized.selectedTerritoryId) ? normalized.selectedTerritoryId : "");
       state.viewer = normalizeCampaignViewer({
         signed_in: false,
-        user_id: "local-worker",
-        display_name: LOCAL_CAMPAIGN_WORKER_NAME,
+        user_id: normalized.viewer.userId,
+        email: normalized.viewer.email,
+        display_name: normalized.viewer.displayName,
+        avatar_url: normalized.viewer.avatarUrl,
         authorized: true
       });
       state.authStatus = "local";
@@ -1031,21 +1138,47 @@
       return normalized;
     }
     function loadLocalCampaign(options = {}) {
-      const snapshot = readLocalCampaignSnapshot(CAMPAIGN_CODE);
-      return applyLocalCampaignSnapshot(snapshot, {
+      const normalizedCode = asCleanText(CAMPAIGN_CODE, "").toUpperCase();
+      const rawStore = readLocalCampaignStore();
+      const rawSnapshot = rawStore[normalizedCode];
+      const snapshot = sanitizeLocalCampaignSnapshot(rawSnapshot);
+      const rawViewer = rawSnapshot && rawSnapshot.viewer && typeof rawSnapshot.viewer === "object" ? rawSnapshot.viewer : null;
+      const needsViewerPersistence = !!(snapshot && (!rawViewer || !asCleanText(rawViewer.userId ?? rawViewer.user_id, "") || asCleanText(rawViewer.userId ?? rawViewer.user_id, "") === LEGACY_LOCAL_CAMPAIGN_WORKER_ID));
+      const applyOptions = {
         preserveSelection: options.preserveSelection,
         preserveView: options.preserveView,
         focusSelection: options.focusSelection,
         focusAll: options.focusAll === true || !options.preserveView
-      });
+      };
+      if (needsViewerPersistence) {
+        return writeLocalCampaignSnapshot(snapshot, {
+          ...applyOptions,
+          announce: false
+        });
+      }
+      return applyLocalCampaignSnapshot(snapshot, applyOptions);
     }
     function setLocalCampaignTerritoryCompletion(territoryId, completed) {
       const snapshot = readLocalCampaignSnapshot(CAMPAIGN_CODE);
       if (!snapshot) throw new Error("This local campaign was not found. Reopen it from Territory Management.");
       const territoryKey = asCleanText(territoryId, "");
+      const territory = snapshot.territories.find((item) => item.id === territoryKey) || null;
+      if (!territory) throw new Error("This territory is not part of the local campaign.");
+      const viewer = normalizeLocalCampaignViewer({
+        ...(snapshot.viewer || {}),
+        user_id: asCleanText((snapshot.viewer && snapshot.viewer.userId) || state.viewer.userId, ""),
+        display_name: asCleanText((snapshot.viewer && snapshot.viewer.displayName) || state.viewer.displayName, "")
+      }, { publicCode: snapshot.campaign && snapshot.campaign.publicCode });
+      if (completed && !hasLocalWorkerName(viewer)) {
+        throw new Error("Enter your worker name before marking a territory completed.");
+      }
+      if (!completed && !canLocalViewerEditCompletedTerritory(territory, viewer)) {
+        throw new Error("Only the worker who completed this territory can unmark it.");
+      }
       const nextSnapshot = {
         ...snapshot,
-        selectedTerritoryId: completed ? "" : territoryKey,
+        viewer,
+        selectedTerritoryId: "",
         campaign: {
           ...snapshot.campaign,
           updatedAt: new Date().toISOString()
@@ -1054,8 +1187,8 @@
           ? {
             ...territory,
             completed: !!completed,
-            completedBy: completed ? LOCAL_CAMPAIGN_WORKER_NAME : "",
-            completedByUserId: completed ? "local-worker" : "",
+            completedBy: completed ? viewer.displayName : "",
+            completedByUserId: completed ? viewer.userId : "",
             completedByEmail: "",
             completedByAvatarUrl: "",
             completedAt: completed ? new Date().toISOString() : ""
@@ -1130,6 +1263,57 @@
         authorized: !!raw.authorized
       };
     }
+    function hasLocalWorkerName(viewer = state.viewer) {
+      return !!asCleanText(viewer && viewer.displayName, "");
+    }
+    function getCompletionOwnerLabel(territory, options = {}) {
+      const fallback = asCleanText(options.fallback, "");
+      return asCleanText(territory && (territory.completedBy || territory.completedByEmail), fallback);
+    }
+    function canLocalViewerEditCompletedTerritory(territory, viewer = state.viewer) {
+      if (!territory || !territory.completed) return false;
+      const viewerId = asCleanText(viewer && viewer.userId, "");
+      if (!viewerId) return false;
+      const ownerId = asCleanText(territory.completedByUserId, "");
+      return ownerId === viewerId || ownerId === "" || ownerId === LEGACY_LOCAL_CAMPAIGN_WORKER_ID;
+    }
+    function canLiveViewerEditCompletedTerritory(territory, viewer = state.viewer) {
+      if (!territory || !territory.completed || !viewer || !viewer.authorized) return false;
+      const viewerId = asCleanText(viewer.userId, "");
+      const ownerId = asCleanText(territory.completedByUserId, "");
+      if (viewerId && ownerId) return ownerId === viewerId;
+      if (ownerId) return false;
+      const viewerEmail = asCleanText(viewer.email, "").toLowerCase();
+      const ownerEmail = asCleanText(territory.completedByEmail, "").toLowerCase();
+      return !!viewerEmail && viewerEmail === ownerEmail;
+    }
+    function canViewerEditCompletedTerritory(territory, viewer = state.viewer) {
+      return state.mode === "local"
+        ? canLocalViewerEditCompletedTerritory(territory, viewer)
+        : canLiveViewerEditCompletedTerritory(territory, viewer);
+    }
+    function getCompletionActionState(selected = state.territories.find((item) => item.id === state.selectedId) || null) {
+      if (!selected) {
+        return { label: "Mark Completed", disabled: true, nextCompleted: null, locked: false };
+      }
+      if (selected.completed && !canViewerEditCompletedTerritory(selected)) {
+        const ownerLabel = getCompletionOwnerLabel(selected, { fallback: state.mode === "local" ? "another worker on this computer" : "another approved worker" });
+        return { label: `Completed by ${ownerLabel}`, disabled: true, nextCompleted: null, locked: true };
+      }
+      if (state.loadingCampaign) {
+        return { label: selected.completed ? "Unmark Completed" : "Mark Completed", disabled: true, nextCompleted: selected.completed ? false : true, locked: false };
+      }
+      if (state.mode === "local" && CAMPAIGN_CODE && !hasLocalWorkerName(state.viewer)) {
+        return { label: "Save Publisher Name", disabled: true, nextCompleted: null, locked: false };
+      }
+      if (selected.completed) {
+        return { label: "Unmark Completed", disabled: false, nextCompleted: false, locked: false };
+      }
+      const canComplete = state.mode === "local"
+        ? !!CAMPAIGN_CODE && hasLocalWorkerName(state.viewer)
+        : !!(state.campaign && CAMPAIGN_CODE && state.viewer.authorized);
+      return { label: "Mark Completed", disabled: !canComplete, nextCompleted: canComplete ? true : null, locked: false };
+    }
     function getSessionViewer(session) {
       const user = session && session.user ? session.user : null;
       if (!user) return normalizeCampaignViewer({});
@@ -1143,28 +1327,57 @@
       });
     }
     function getViewerDisplayName(viewer = state.viewer) {
-      if (state.mode === "local") return asCleanText(viewer && (viewer.displayName || viewer.email), LOCAL_CAMPAIGN_WORKER_NAME);
+      if (state.mode === "local") return asCleanText(viewer && (viewer.displayName || viewer.email), CAMPAIGN_CODE ? "Publisher Name Required" : "Local Preview");
       return asCleanText(viewer && (viewer.displayName || viewer.email), CAMPAIGN_CODE ? "Google sign-in required" : "Local preview");
     }
     function getViewerInitials(viewer = state.viewer) {
       const base = getViewerDisplayName(viewer);
       return base.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("") || "GW";
     }
+    function renderViewerAvatar(avatarEl, viewer = state.viewer) {
+      if (!avatarEl) return;
+      const avatarUrl = asCleanText(viewer && viewer.avatarUrl, "");
+      const initials = getViewerInitials(viewer);
+      if (!avatarUrl) {
+        avatarEl.replaceChildren();
+        avatarEl.textContent = initials;
+        return;
+      }
+      const image = document.createElement("img");
+      image.alt = "";
+      image.referrerPolicy = "no-referrer";
+      image.loading = "lazy";
+      image.src = avatarUrl;
+      image.addEventListener("error", () => {
+        avatarEl.replaceChildren();
+        avatarEl.textContent = initials;
+      }, { once: true });
+      avatarEl.replaceChildren(image);
+    }
+    function isLocalWorkerNameEditable() {
+      return state.mode === "local" && !!CAMPAIGN_CODE && state.authStatus !== "local_missing";
+    }
     function renderViewerChip() {
+      const chipEl = $("workerSessionChip");
       const avatarEl = $("workerAvatar");
       const nameEl = $("workerDisplayName");
       const metaEl = $("workerDisplayMeta");
       const signOutBtn = $("btnSignOut");
-      if (avatarEl) {
-        if (state.viewer.avatarUrl) {
-          avatarEl.innerHTML = `<img src="${state.viewer.avatarUrl.replace(/"/g, "&quot;")}" alt="" referrerpolicy="no-referrer" loading="lazy" />`;
-        } else {
-          avatarEl.textContent = getViewerInitials(state.viewer);
-        }
+      const canEditLocalName = isLocalWorkerNameEditable();
+      renderViewerAvatar(avatarEl, state.viewer);
+      if (chipEl) {
+        chipEl.disabled = !canEditLocalName;
+        chipEl.classList.toggle("clickable", canEditLocalName);
+        chipEl.setAttribute("aria-expanded", canEditLocalName && state.localWorkerEditorOpen ? "true" : "false");
+        chipEl.setAttribute("aria-label", canEditLocalName
+          ? (hasLocalWorkerName(state.viewer) ? "Edit publisher display name" : "Set publisher display name")
+          : "Worker status");
       }
       if (nameEl) nameEl.textContent = getViewerDisplayName(state.viewer);
       if (metaEl) {
-        if (state.mode === "local" && CAMPAIGN_CODE) metaEl.textContent = state.authStatus === "local_missing" ? "Reopen from Territory Management" : "Same-computer local campaign";
+        if (state.mode === "local" && CAMPAIGN_CODE) metaEl.textContent = state.authStatus === "local_missing"
+          ? "Reopen from Territory Management"
+          : (hasLocalWorkerName(state.viewer) ? "Same-computer local campaign" : "Click your initials to save a worker name");
         else if (!CAMPAIGN_CODE) metaEl.textContent = "Local overview only";
         else if (state.authStatus === "loading" || state.loadingCampaign) metaEl.textContent = "Checking campaign access...";
         else if (state.authStatus === "redirecting_localhost") metaEl.textContent = "Redirecting to localhost...";
@@ -1175,6 +1388,161 @@
         else metaEl.textContent = state.viewer.email || "Approved Google worker";
       }
       if (signOutBtn) signOutBtn.hidden = state.mode !== "live" || !CAMPAIGN_CODE || !state.viewer.signedIn;
+    }
+    function setLocalWorkerEditorOpen(open, options = {}) {
+      const nextOpen = !!open && isLocalWorkerNameEditable();
+      state.localWorkerEditorOpen = nextOpen;
+      renderViewerChip();
+      renderLocalWorkerEditor();
+      if (nextOpen) {
+        const enqueue = typeof window.requestAnimationFrame === "function"
+          ? window.requestAnimationFrame.bind(window)
+          : (callback => window.setTimeout(callback, 0));
+        enqueue(() => positionLocalWorkerEditor());
+      }
+      if (nextOpen && options.focus !== false) {
+        const input = $("localWorkerName");
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+    }
+    function toggleLocalWorkerEditor() {
+      setLocalWorkerEditorOpen(!state.localWorkerEditorOpen);
+    }
+    function positionLocalWorkerEditor() {
+      const panel = $("localWorkerEditor");
+      const trigger = $("workerSessionChip");
+      if (!panel || !trigger || panel.hidden) return;
+      const triggerRect = trigger.getBoundingClientRect();
+      const viewportWidth = Math.max(window.innerWidth || 0, document.documentElement ? document.documentElement.clientWidth : 0);
+      const viewportHeight = Math.max(window.innerHeight || 0, document.documentElement ? document.documentElement.clientHeight : 0);
+      const panelWidth = Math.min(320, Math.max(220, viewportWidth - 16));
+      panel.style.width = `${Math.min(panelWidth, Math.max(220, viewportWidth - 16))}px`;
+      const measuredWidth = Math.min(panel.offsetWidth || panelWidth, Math.max(220, viewportWidth - 16));
+      const measuredHeight = Math.max(panel.offsetHeight || 0, 0);
+      const viewportPadding = viewportWidth <= 720 ? 8 : 12;
+      const defaultTop = triggerRect.bottom + 8;
+      const wouldOverflowBottom = measuredHeight && (defaultTop + measuredHeight + viewportPadding) > viewportHeight;
+      const top = wouldOverflowBottom
+        ? Math.max(viewportPadding, triggerRect.top - measuredHeight - 8)
+        : Math.max(viewportPadding, defaultTop);
+      const left = Math.min(
+        Math.max(viewportPadding, triggerRect.right - measuredWidth),
+        Math.max(viewportPadding, viewportWidth - measuredWidth - viewportPadding)
+      );
+      panel.style.top = `${Math.round(top)}px`;
+      panel.style.left = `${Math.round(left)}px`;
+    }
+    function renderLocalWorkerEditor() {
+      const panel = $("localWorkerEditor");
+      const input = $("localWorkerName");
+      const saveBtn = $("btnSaveLocalWorkerName");
+      const helper = $("localWorkerNameHelper");
+      if (!panel || !input || !saveBtn || !helper) return;
+      const isLocalCampaign = isLocalWorkerNameEditable();
+      if (!isLocalCampaign) state.localWorkerEditorOpen = false;
+      panel.hidden = !isLocalCampaign || !state.localWorkerEditorOpen;
+      if (!isLocalCampaign) return;
+      const savedName = asCleanText(state.viewer.displayName, "");
+      if (document.activeElement !== input) input.value = savedName;
+      const pendingName = asCleanText(input.value, "");
+      saveBtn.disabled = state.loadingCampaign || !pendingName || pendingName === savedName;
+      helper.textContent = savedName
+        ? "Saved on this computer for this campaign."
+        : "Enter your name to claim territories and reopen your own work on this computer.";
+      positionLocalWorkerEditor();
+    }
+    function saveLocalWorkerName() {
+      if (state.mode !== "local" || !CAMPAIGN_CODE) return;
+      const input = $("localWorkerName");
+      const nextName = asCleanText(input && input.value, "");
+      if (!nextName) {
+        setLocalWorkerEditorOpen(true);
+        if (input) input.focus();
+        return;
+      }
+      const snapshot = readLocalCampaignSnapshot(CAMPAIGN_CODE);
+      if (!snapshot) {
+        state.authStatus = "local_missing";
+        state.authMessage = "This local campaign was not found. Reopen it from Territory Management.";
+        updateSummary();
+        return;
+      }
+      state.loadingCampaign = true;
+      updateSummary();
+      try {
+        const nextSnapshot = {
+          ...snapshot,
+          viewer: normalizeLocalCampaignViewer({
+            ...(snapshot.viewer || {}),
+            user_id: asCleanText((snapshot.viewer && snapshot.viewer.userId) || state.viewer.userId, ""),
+            display_name: nextName
+          }, { publicCode: snapshot.campaign && snapshot.campaign.publicCode }),
+          campaign: {
+            ...snapshot.campaign,
+            updatedAt: new Date().toISOString()
+          }
+        };
+        writeLocalCampaignSnapshot(nextSnapshot, {
+          preserveSelection: true,
+          preserveView: !!state.selectedId,
+          focusSelection: !!state.selectedId,
+          focusAll: !state.selectedId,
+          messageType: "campaign:viewer_updated"
+        });
+        state.localWorkerEditorOpen = false;
+      } catch (error) {
+        const message = asCleanText((error && error.message) || "Unable to save worker name.", "Unable to save worker name.");
+        state.authStatus = /not found/i.test(message) ? "local_missing" : "local";
+        state.authMessage = message;
+      } finally {
+        state.loadingCampaign = false;
+        updateSummary();
+      }
+    }
+    async function hydrateLocalViewerProfileFromGoogleSession() {
+      if (state.mode !== "local" || !CAMPAIGN_CODE || !hasSupabaseRuntimeConfig()) return false;
+      const snapshot = readLocalCampaignSnapshot(CAMPAIGN_CODE);
+      if (!snapshot) return false;
+      try {
+        const client = ensureClient();
+        const result = await client.auth.getSession();
+        if (result && result.error) return false;
+        const session = result && result.data ? result.data.session : null;
+        const sessionViewer = getSessionViewer(session);
+        if (!sessionViewer.signedIn) return false;
+        const currentViewer = normalizeLocalCampaignViewer(snapshot.viewer, { publicCode: snapshot.campaign && snapshot.campaign.publicCode });
+        const mergedViewer = normalizeLocalCampaignViewer({
+          ...currentViewer,
+          email: currentViewer.email || sessionViewer.email,
+          display_name: currentViewer.displayName || sessionViewer.displayName,
+          avatar_url: currentViewer.avatarUrl || sessionViewer.avatarUrl
+        }, { publicCode: snapshot.campaign && snapshot.campaign.publicCode });
+        if (mergedViewer.email === currentViewer.email
+          && mergedViewer.displayName === currentViewer.displayName
+          && mergedViewer.avatarUrl === currentViewer.avatarUrl) {
+          return false;
+        }
+        writeLocalCampaignSnapshot({
+          ...snapshot,
+          viewer: mergedViewer,
+          campaign: {
+            ...snapshot.campaign,
+            updatedAt: new Date().toISOString()
+          }
+        }, {
+          preserveSelection: true,
+          preserveView: !!state.selectedId,
+          focusSelection: !!state.selectedId,
+          focusAll: !state.selectedId,
+          announce: false
+        });
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
     function ensureClient() {
       const config = readAppRuntimeConfig();
@@ -1377,6 +1745,7 @@
     function updateSummary() {
       const rows = getSortedTerritories(state.territories);
       const kpis = computeKpis(rows);
+      const localNameMissing = state.mode === "local" && CAMPAIGN_CODE && !hasLocalWorkerName(state.viewer);
       $("kpiTotal").textContent = String(kpis.total);
       $("kpiCompleted").textContent = String(kpis.completed);
       $("kpiRemaining").textContent = String(kpis.remaining);
@@ -1390,9 +1759,11 @@
         } else {
           $("modeChip").textContent = "Local Campaign";
           $("campaignStatus").textContent = `${rows.length} territories loaded for same-computer local use.`;
-          $("instructions").textContent = state.selectedId
-            ? "Work the selected territory, then mark it completed to return to the full overview."
-            : "Choose a territory from the map or picker to zoom in. Completed territories stay highlighted.";
+          $("instructions").textContent = localNameMissing
+            ? "Save your worker name on this computer before claiming or reopening territories."
+            : (state.selectedId
+              ? "Work the selected territory, then use the same button to mark or reopen it before returning to the full overview."
+              : "Choose a territory from the map or picker to zoom in. Completed territories stay highlighted.");
         }
       } else if (CAMPAIGN_CODE) {
         if (state.loadingCampaign || state.authStatus === "loading") {
@@ -1429,7 +1800,7 @@
           $("modeChip").textContent = state.syncMode === "realtime" ? "Campaign Live" : "Campaign Sync";
           $("campaignStatus").textContent = `${rows.length} territories loaded. Signed in as ${getViewerDisplayName(state.viewer)}.`;
           $("instructions").textContent = state.selectedId
-            ? "Review the selected territory, work it, then mark it completed to return to the full overview."
+            ? "Review the selected territory, work it, then use the same button to mark or reopen your own territory before returning to the full overview."
             : "Choose a territory from the map or picker to zoom into its streets. Completed territories stay highlighted.";
         }
       } else if (rows.length) {
@@ -1443,7 +1814,9 @@
       }
       populateTerritoryPicker();
       renderViewerChip();
+      renderLocalWorkerEditor();
       const selected = rows.find((item) => item.id === state.selectedId) || null;
+      const actionState = getCompletionActionState(selected);
       $("selectedTerritoryMeta").textContent = selected
         ? `Terr. ${normalizeTerritoryNo(selected.territoryNo)} - ${selected.locality || "Unknown locality"}`
         : "Select a territory on the map or from the picker.";
@@ -1451,24 +1824,33 @@
       if (!selected) {
         statusEl.textContent = "Open";
         statusEl.className = "selected-state open";
-        $("selectedTerritoryDetail").textContent = state.mode === "local"
-          ? "Choose a territory to zoom in, then mark it complete when finished."
-          : "Choose a territory to zoom in, then mark it complete when finished.";
+        $("selectedTerritoryDetail").textContent = localNameMissing
+          ? "Save your worker name, then choose a territory to claim on this computer."
+          : "Choose a territory to zoom in, then use the same button to mark it complete when finished.";
       } else if (selected.completed) {
-        statusEl.textContent = `Completed by ${selected.completedBy || selected.completedByEmail || (state.mode === "local" ? LOCAL_CAMPAIGN_WORKER_NAME : "Approved worker")}`;
+        const ownerLabel = getCompletionOwnerLabel(selected, {
+          fallback: state.mode === "local" ? "this computer" : "an approved worker"
+        });
+        statusEl.textContent = `Completed by ${ownerLabel}`;
         statusEl.className = "selected-state done";
-        $("selectedTerritoryDetail").textContent = selected.completedAt
-          ? `Completed ${selected.completedAt}. This territory remains visible in the overview.`
-          : "This territory was marked completed.";
+        $("selectedTerritoryDetail").textContent = actionState.nextCompleted === false
+          ? (selected.completedAt
+            ? `Completed ${selected.completedAt}. Use the button below to reopen it if it needs more work.`
+            : "Use the button below to reopen it if it needs more work.")
+          : (selected.completedAt
+            ? `Completed ${selected.completedAt}. Only ${ownerLabel} can unmark it from the campaign page.`
+            : `Only ${ownerLabel} can unmark this territory from the campaign page.`);
       } else {
         statusEl.textContent = "Open";
         statusEl.className = "selected-state open";
-        $("selectedTerritoryDetail").textContent = state.mode === "local"
-          ? "This territory is still open in the local campaign."
-          : "This territory is still open for the campaign.";
+        $("selectedTerritoryDetail").textContent = localNameMissing
+          ? "Save your worker name before claiming this territory."
+          : (state.mode === "local"
+            ? "This territory is still open in the local campaign."
+            : "This territory is still open for the campaign.");
       }
-      const canCompleteLocal = state.mode === "local" && CAMPAIGN_CODE;
-      $("btnMarkCompleted").disabled = !(selected && !selected.completed && !state.loadingCampaign && (canCompleteLocal || (state.campaign && CAMPAIGN_CODE && state.viewer.authorized)));
+      $("btnMarkCompleted").textContent = actionState.label;
+      $("btnMarkCompleted").disabled = actionState.disabled;
       $("btnShowAllTerritories").disabled = !rows.length || state.loadingCampaign;
       updateLegend();
       updateAuthGate();
@@ -1481,7 +1863,9 @@
           : `All territories - ${state.territories.length} loaded`;
         return;
       }
-      const statusText = selected.completed ? `Completed${selected.completedBy ? ` by ${selected.completedBy}` : ""}` : "Open";
+      const statusText = selected.completed
+        ? `Completed${getCompletionOwnerLabel(selected) ? ` by ${getCompletionOwnerLabel(selected)}` : ""}`
+        : "Open";
       $("mapLegend").textContent = `Terr. ${normalizeTerritoryNo(selected.territoryNo)} - ${selected.locality || "Unknown locality"} - ${statusText}`;
     }
     function renderNumberLabels() {
@@ -1509,14 +1893,37 @@
         surface.appendChild(node);
       });
     }
-    function focusSelectedTerritory() {
+    function focusSelectedTerritory(options = {}) {
       const selected = state.territories.find((item) => item.id === state.selectedId) || null;
       if (!selected || !state.map) return false;
-      return fitMapToCoordsAtMaxSafeZoom(state.map, selected.polygon, {
+      const fitOptions = {
         padding: [22, 22],
         maxZoom: 19,
         marginPx: 18
-      });
+      };
+      const performFit = () => {
+        if (!state.map) return false;
+        if (typeof state.map.invalidateSize === "function") state.map.invalidateSize(true);
+        const didFocus = fitMapToCoordsAtMaxSafeZoom(state.map, selected.polygon, fitOptions);
+        scheduleLabelRender();
+        return didFocus;
+      };
+      const didFit = performFit();
+      if (options.stabilize !== false) {
+        const enqueue = typeof window.requestAnimationFrame === "function"
+          ? window.requestAnimationFrame.bind(window)
+          : (callback => window.setTimeout(callback, 0));
+        const remainingPasses = Math.max(1, Number(options.passes) || 2) - 1;
+        const runStabilizedPass = (remaining) => {
+          if (remaining <= 0) return;
+          enqueue(() => {
+            if (!performFit()) return;
+            runStabilizedPass(remaining - 1);
+          });
+        };
+        runStabilizedPass(remainingPasses);
+      }
+      return didFit;
     }
     function focusAllTerritories(options = {}) {
       if (!state.map) return false;
@@ -1528,7 +1935,7 @@
       const maxZoom = (typeof state.map.getMaxZoom === "function" && Number.isFinite(state.map.getMaxZoom()))
         ? Math.max(13, Math.min(18, state.map.getMaxZoom()))
         : 18;
-      const fitOptions = { padding: [12, 12], maxZoom, marginPx: 10 };
+      const fitOptions = { padding: [4, 4], maxZoom, marginPx: 2 };
       const performFit = () => {
         if (!state.map || !state.territories.length) return false;
         if (typeof state.map.invalidateSize === "function") state.map.invalidateSize(true);
@@ -1541,7 +1948,7 @@
         const enqueue = typeof window.requestAnimationFrame === "function"
           ? window.requestAnimationFrame.bind(window)
           : (callback => window.setTimeout(callback, 0));
-        const remainingPasses = Math.max(1, Number(options.passes) || 3) - 1;
+        const remainingPasses = Math.max(1, Number(options.passes) || 4) - 1;
         const runStabilizedPass = (remaining) => {
           if (remaining <= 0) return;
           enqueue(() => {
@@ -1593,7 +2000,7 @@
       });
       renderNumberLabels();
       if (options.focusSelection && state.selectedId) {
-        focusSelectedTerritory();
+        focusSelectedTerritory({ stabilize: options.stabilizeFocus !== false });
       } else if (options.focusAll || (!options.preserveView && !state.selectedId)) {
         focusAllTerritories({ stabilize: options.stabilizeFocus !== false });
       }
@@ -1798,7 +2205,7 @@
       state.campaign = null;
       state.syncMode = "local";
       state.authStatus = "local";
-      state.viewer = normalizeCampaignViewer({ authorized: true });
+      state.viewer = normalizeCampaignViewer({ authorized: true, display_name: "" });
       state.territories = getSortedTerritories((Array.isArray(raw) ? raw : []).map((territory) => normalizeCampaignTerritory({
         territory_id: territory && territory.id,
         territory_no: territory && territory.territoryNo,
@@ -1860,18 +2267,24 @@
     }
     async function completeSelectedTerritory() {
       const selected = state.territories.find((item) => item.id === state.selectedId);
+      const actionState = getCompletionActionState(selected);
+      const nextCompleted = actionState.nextCompleted;
       if (!selected || !state.campaign || !CAMPAIGN_CODE) return;
+      if (typeof nextCompleted !== "boolean") return;
       if (state.mode === "local") {
         state.loadingCampaign = true;
         updateSummary();
         try {
-          setLocalCampaignTerritoryCompletion(selected.id, true);
+          setLocalCampaignTerritoryCompletion(selected.id, nextCompleted);
           state.selectedId = "";
           loadLocalCampaign({ preserveSelection: false, focusAll: true });
-          $("campaignStatus").textContent = `Terr. ${normalizeTerritoryNo(selected.territoryNo)} marked completed locally.`;
+          $("campaignStatus").textContent = nextCompleted
+            ? `Terr. ${normalizeTerritoryNo(selected.territoryNo)} marked completed locally.`
+            : `Terr. ${normalizeTerritoryNo(selected.territoryNo)} reopened locally.`;
         } catch (error) {
-          state.authStatus = "local_missing";
-          state.authMessage = asCleanText((error && error.message) || "This local campaign was not found. Reopen it from Territory Management.", "This local campaign was not found. Reopen it from Territory Management.");
+          const message = asCleanText((error && error.message) || "Unable to update this local territory.", "Unable to update this local territory.");
+          state.authStatus = /not found/i.test(message) ? "local_missing" : "local";
+          state.authMessage = message;
           $("campaignStatus").textContent = state.authMessage;
         } finally {
           state.loadingCampaign = false;
@@ -1890,17 +2303,39 @@
         await callRpc("campaign_set_completion", {
           p_public_code: CAMPAIGN_CODE,
           p_territory_id: selected.id,
-          p_completed: true
+          p_completed: nextCompleted
         });
         state.selectedId = "";
         await loadCampaign({ preserveSelection: false, focusAll: true });
-        $("campaignStatus").textContent = `Terr. ${normalizeTerritoryNo(selected.territoryNo)} marked completed.`;
+        $("campaignStatus").textContent = nextCompleted
+          ? `Terr. ${normalizeTerritoryNo(selected.territoryNo)} marked completed.`
+          : `Terr. ${normalizeTerritoryNo(selected.territoryNo)} reopened.`;
       } catch (error) {
-        $("campaignStatus").textContent = asCleanText((error && error.message) || "Unable to complete territory.", "Unable to complete territory.");
+        $("campaignStatus").textContent = asCleanText((error && error.message) || (nextCompleted ? "Unable to complete territory." : "Unable to reopen territory."), nextCompleted ? "Unable to complete territory." : "Unable to reopen territory.");
       } finally {
         state.loadingCampaign = false;
         updateSummary();
       }
+    }
+    function handleDocumentPointerDown(event) {
+      if (!state.localWorkerEditorOpen) return;
+      const panel = $("localWorkerEditor");
+      const trigger = $("workerSessionChip");
+      const target = event && event.target ? event.target : null;
+      if ((panel && panel.contains(target)) || (trigger && trigger.contains(target))) return;
+      setLocalWorkerEditorOpen(false, { focus: false });
+    }
+    function handleDocumentKeyDown(event) {
+      if (!state.localWorkerEditorOpen) return;
+      if (!event || event.key !== "Escape") return;
+      event.preventDefault();
+      setLocalWorkerEditorOpen(false, { focus: false });
+      const trigger = $("workerSessionChip");
+      if (trigger) trigger.focus();
+    }
+    function handleViewportChange() {
+      if (!state.localWorkerEditorOpen) return;
+      positionLocalWorkerEditor();
     }
     function initMap() {
       state.map = L.map("map").setView([40.665, -73.78], 13);
@@ -1919,6 +2354,10 @@
     function stopCampaignPage() {
       stopSync();
       stopLocalCampaignSync();
+      document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
+      document.removeEventListener("keydown", handleDocumentKeyDown, true);
+      window.removeEventListener("resize", handleViewportChange, true);
+      window.removeEventListener("scroll", handleViewportChange, true);
       const sub = state.authSubscription;
       if (sub && typeof sub.unsubscribe === "function") {
         try { sub.unsubscribe(); } catch (_) { }
@@ -1927,8 +2366,23 @@
     }
     async function start() {
       initMap();
+      document.addEventListener("pointerdown", handleDocumentPointerDown, true);
+      document.addEventListener("keydown", handleDocumentKeyDown, true);
+      window.addEventListener("resize", handleViewportChange, true);
+      window.addEventListener("scroll", handleViewportChange, true);
       $("btnMarkCompleted").addEventListener("click", () => completeSelectedTerritory());
       $("btnShowAllTerritories").addEventListener("click", () => showAllTerritories());
+      $("workerSessionChip").addEventListener("click", () => {
+        if (!isLocalWorkerNameEditable()) return;
+        toggleLocalWorkerEditor();
+      });
+      $("btnSaveLocalWorkerName").addEventListener("click", () => saveLocalWorkerName());
+      $("localWorkerName").addEventListener("input", () => renderLocalWorkerEditor());
+      $("localWorkerName").addEventListener("keydown", (event) => {
+        if (!event || event.key !== "Enter") return;
+        event.preventDefault();
+        saveLocalWorkerName();
+      });
       $("territoryPicker").addEventListener("change", (event) => {
         const nextId = asCleanText(event && event.target ? event.target.value : "", "");
         if (!nextId) {
@@ -1970,6 +2424,8 @@
             state.authStatus = "local_missing";
             state.authMessage = "This local campaign was not found. Reopen it from Territory Management.";
             updateSummary();
+          } else {
+            hydrateLocalViewerProfileFromGoogleSession().catch(() => {});
           }
           return;
         }
@@ -1999,7 +2455,8 @@
         showAllTerritories,
         completeSelectedTerritory,
         refreshAuthSession,
-        setLocalCampaignTerritoryCompletion
+        setLocalCampaignTerritoryCompletion,
+        saveLocalWorkerName
       })
     });
     window.addEventListener("beforeunload", stopCampaignPage);

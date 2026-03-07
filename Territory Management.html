@@ -39,13 +39,6 @@
     .selection-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);gap:.5rem}
     .selection-actions .btn.secondary{min-width:132px}
     .selection-inputs{display:grid;gap:.5rem}
-    .selection-data-tools{display:grid;gap:.5rem}
-    .ops-status-row{display:flex;gap:.45rem;flex-wrap:wrap}
-    .ops-status-chip{display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:.34rem .66rem;border-radius:999px;border:1px solid rgba(15,23,42,.12);background:#fff;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#486074}
-    .ops-status-chip[data-tone="success"]{border-color:rgba(36,151,91,.22);background:rgba(36,151,91,.1);color:#17633c}
-    .ops-status-chip[data-tone="loading"]{border-color:rgba(30,64,175,.22);background:rgba(30,64,175,.1);color:#1e3a8a}
-    .ops-status-chip[data-tone="warning"]{border-color:rgba(185,119,31,.24);background:rgba(243,199,109,.24);color:#8a5b0f}
-    .ops-status-chip[data-tone="error"]{border-color:rgba(198,40,40,.22);background:rgba(198,40,40,.1);color:#8b1e1e}
     .btn{min-height:42px;padding:.64rem .8rem;border-radius:10px;border:1px solid transparent;background:var(--accent);color:#fff;font:700 .9rem var(--font-ui);display:inline-flex;align-items:center;justify-content:center;gap:.38rem;cursor:pointer;box-shadow:0 10px 22px rgba(18,120,99,.22);transition:transform .16s,opacity .16s,background-color .16s}
     .btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn.secondary{background:#f0f5f9;color:#1e293b;border-color:rgba(15,23,42,.2);box-shadow:0 6px 16px rgba(15,23,42,.12)}.btn.danger{background:var(--danger);box-shadow:0 8px 18px rgba(198,40,40,.25)}.btn.compact{min-height:38px;font-size:.83rem;padding:.48rem .75rem}.btn:disabled{opacity:.7;cursor:not-allowed;transform:none}
     .btn.is-active{background:#0f8a74;color:#fff;border-color:#0f8a74;box-shadow:0 8px 18px rgba(15,138,116,.28)}
@@ -55,10 +48,6 @@
     .btn.is-loading .icon{animation:spin 1s linear infinite}
     .status{margin-top:.58rem;border-radius:999px;padding:.38rem .65rem;display:inline-flex;align-items:center;min-height:26px;font-size:.75rem;font-weight:700;border:1px solid transparent}
     .status.info{background:rgba(15,138,116,.09);color:#0a5e51;border-color:rgba(15,138,116,.22)}.status.success{background:rgba(36,151,91,.1);color:#17633c;border-color:rgba(36,151,91,.24)}.status.error{background:rgba(198,40,40,.11);color:#7a1d1d;border-color:rgba(198,40,40,.24)}.status.loading{background:rgba(30,64,175,.1);color:#1e3a8a;border-color:rgba(30,64,175,.25)}
-    .dataset-progress{margin-top:.5rem;padding:.45rem .55rem;border:1px solid rgba(15,23,42,.14);border-radius:10px;background:rgba(255,255,255,.82)}
-    .dataset-progress[hidden]{display:none!important}
-    .dataset-progress-label{font-size:.72rem;color:#324255;font-weight:700;margin-bottom:.28rem}
-    .dataset-progress progress{width:100%;height:12px;display:block;accent-color:#0f8a74}
     .campaign-fields,.campaign-actions,.campaign-selected-actions,.campaign-roster{display:grid;gap:.55rem}
     .campaign-card[hidden]{display:none!important}
     .campaign-grid{display:grid;gap:.65rem}
@@ -107,14 +96,13 @@
     .tools-item.danger:hover,.tools-item.danger:focus-visible{background:rgba(198,40,40,.12);color:#7f1d1d}
     .tools-divider{height:1px;background:rgba(15,23,42,.12);margin:.2rem .25rem}
     .tools-section{padding:.38rem .5rem .2rem;font-size:.67rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#56657a}
-    .tools-control{padding:.2rem .5rem .35rem;display:grid;gap:.35rem}
+    .tools-control{padding:.2rem .5rem .3rem;display:grid;gap:.24rem}
     .tools-control-label{font-size:.67rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#56657a}
-    .tools-mode-grid{display:grid;gap:.38rem}
-    .tools-mode-option{appearance:none;border:1px solid rgba(15,23,42,.18);background:linear-gradient(180deg,#fff,#f8fbfd);width:100%;text-align:left;padding:.56rem .62rem;border-radius:8px;font:700 .83rem var(--font-ui);color:#1e293b;cursor:pointer;transition:border-color .16s,box-shadow .16s,background-color .16s,color .16s}
-    .tools-mode-option:hover,.tools-mode-option:focus-visible{outline:none;border-color:rgba(15,138,116,.42);background:rgba(15,138,116,.08);color:#0d584c}
-    .tools-mode-option.is-active{border-color:#0f8a74;background:linear-gradient(180deg,rgba(15,138,116,.12),rgba(15,138,116,.18));color:#0c6153;box-shadow:0 0 0 1px rgba(15,138,116,.14)}
+    .tools-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.2rem;padding:.22rem;border:1px solid rgba(15,23,42,.12);border-radius:12px;background:linear-gradient(180deg,rgba(246,249,252,.96),rgba(237,244,248,.88))}
+    .tools-mode-option{appearance:none;border:1px solid transparent;background:transparent;width:100%;min-height:44px;text-align:center;padding:.5rem .42rem;border-radius:9px;font:700 .78rem/1.15 var(--font-ui);color:#334155;cursor:pointer;transition:border-color .16s,box-shadow .16s,background-color .16s,color .16s}
+    .tools-mode-option:hover,.tools-mode-option:focus-visible{outline:none;border-color:rgba(15,138,116,.26);background:rgba(15,138,116,.08);color:#0d584c}
+    .tools-mode-option.is-active{border-color:#0f8a74;background:linear-gradient(180deg,rgba(15,138,116,.14),rgba(15,138,116,.22));color:#0c6153;box-shadow:0 0 0 1px rgba(15,138,116,.12)}
     .tools-note{padding:0 .5rem .25rem;font-size:.73rem;font-weight:600;color:#56657a;line-height:1.35}
-    .dataset-state-note{display:block;margin-top:.18rem;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#637286}
     .assignment-note{margin-top:.22rem;font-size:.73rem;font-weight:700;color:#435266}
     .assignment-note.overdue{color:#9f1d1d}
     .assignment-note.active{color:#0c6658}
@@ -273,7 +261,6 @@
         <div id="menuTerritoryTools" class="tools-menu" role="dialog" aria-label="Territory Tools" hidden>
           <div class="tools-section">Map View</div>
           <div class="tools-control">
-            <div class="tools-control-label">Map View</div>
             <div class="tools-mode-grid" role="group" aria-label="Map View">
               <button class="tools-mode-option" id="btnViewModeSelected" type="button" data-view-mode="selected" data-tools-focusable="true" data-help="Focus the selected territory only.">Selected Territory</button>
               <button class="tools-mode-option" id="btnViewModeAll" type="button" data-view-mode="all" data-tools-focusable="true" data-help="Show every territory label and fit the full territory footprint.">All Territories</button>
@@ -304,14 +291,6 @@
         <div class="selection-inputs" id="selectionInputs">
           <input type="text" id="territoryNo" placeholder="Territory No." />
           <input type="text" id="locality" placeholder="Locality Name" />
-        </div>
-        <div class="selection-data-tools" id="selectionDataTools">
-          <span class="dataset-state-note">Address Data: NY</span>
-          <div id="datasetInfo" class="mini">Preparing local address cache...</div>
-          <div id="datasetProgress" class="dataset-progress" hidden>
-            <div id="datasetProgressLabel" class="dataset-progress-label">Preparing install...</div>
-            <progress id="datasetProgressBar" max="100" value="0"></progress>
-          </div>
         </div>
         <div class="selection-actions" id="selectionActions">
           <button class="btn" id="btnFetch"><span class="icon" aria-hidden="true">&#x1F4CD;</span><span class="btn-label">Refresh Selected</span></button>
@@ -570,7 +549,7 @@
     const CAMPAIGN_SYNC_POLL_MS = 15000;
     const CAMPAIGN_PUBLIC_CODE_LENGTH = 8;
     const LOCAL_CAMPAIGN_SYNC_CHANNEL = "terr_local_campaign_sync_v1";
-    const LOCAL_CAMPAIGN_WORKER_NAME = "Local Worker";
+    const LEGACY_LOCAL_CAMPAIGN_WORKER_ID = "local-worker";
     const NON_RESIDENTIAL_BUILDING_TYPES = new Set([
       "commercial", "retail", "industrial", "warehouse", "office", "school", "college",
       "university", "hospital", "civic", "public", "government", "train_station",
@@ -622,6 +601,9 @@
       minLeadCount: 5
     });
     const OVERTURE_FETCH_LIMIT = 5000;
+    const OVERPASS_API_DEFAULT_URL = "https://overpass-api.de/api/interpreter";
+    const OVERPASS_API_TIMEOUT_MS = 45000;
+    const OVERPASS_QUERY_TIMEOUT_SECONDS = 40;
     const OVERTURE_API_TIMEOUT_MS = 90000;
     const OVERTURE_API_STATUS_POLL_MS = 500;
     const OVERTURE_API_STATUS_POLL_MAX_ATTEMPTS = 1800;
@@ -736,7 +718,6 @@
       retry: null,
       retryLabel: "Open Print Window"
     };
-    let printStatusState = { text: "Ready", tone: "success" };
     let lastStatusSource = "init";
     const APP_META = Object.freeze({
       name: "Territory Management PRO",
@@ -755,7 +736,6 @@
       "territorySelector",
       "territoryNo",
       "locality",
-      "datasetInfo",
       "btnToolsMenu",
       "menuTerritoryTools",
       "btnFetch",
@@ -915,6 +895,26 @@
       const text = String(value == null ? fallback : value).replace(/\s+/g, " ").trim();
       return text || String(fallback || "");
     }
+    function buildLocalCampaignViewerId(publicCode = campaignDraft.publicCode) {
+      const code = normalizeCampaignPublicCode(publicCode) || "LOCAL";
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return `local:${code}:${window.crypto.randomUUID()}`;
+      }
+      return `local:${code}:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+    }
+    function normalizeLocalCampaignViewer(rawViewer, options = {}) {
+      const raw = rawViewer && typeof rawViewer === "object" ? rawViewer : {};
+      const publicCode = normalizeCampaignPublicCode(options.publicCode || campaignDraft.publicCode) || "LOCAL";
+      const userId = asCleanText(raw.user_id ?? raw.userId, "");
+      return {
+        signedIn: false,
+        userId: userId && userId !== LEGACY_LOCAL_CAMPAIGN_WORKER_ID ? userId : buildLocalCampaignViewerId(publicCode),
+        email: asCleanText(raw.email, "").toLowerCase(),
+        displayName: asCleanText(raw.display_name ?? raw.displayName, ""),
+        avatarUrl: asCleanText(raw.avatar_url ?? raw.avatarUrl, ""),
+        authorized: true
+      };
+    }
     function readBooleanFlag(rawValue, defaultValue = false) {
       const normalized = asCleanText(rawValue, "").toLowerCase();
       if (!normalized) return !!defaultValue;
@@ -1024,6 +1024,24 @@
       localStorage.setItem(STORAGE_KEYS.assignmentLedger, JSON.stringify(assignmentLedger));
       if (assignmentUiState.open) renderAssignmentModal();
     }
+    function normalizeAddressIdentityValue(value) {
+      return String(value ?? "").toLowerCase().replace(/\s+/g, " ").replace(/[.,]/g, "").trim();
+    }
+    function normalizeAddressPointKey(pointLike) {
+      const point = normalizeLatLngPoint(pointLike);
+      if (!point) return "";
+      return `${Number(point[0]).toFixed(6)}|${Number(point[1]).toFixed(6)}`;
+    }
+    function buildAddressIdentityKey(record) {
+      if (!record || typeof record !== "object") return "";
+      const fullKey = normalizeAddressIdentityValue(record.full || record.streetLine || "");
+      if (!fullKey) return "";
+      const pointKey = normalizeAddressPointKey({
+        lat: record.lat ?? (record.point && record.point.lat),
+        lng: record.lng ?? record.lon ?? (record.point && record.point.lng)
+      });
+      return `${fullKey}|${pointKey || "no-point"}`;
+    }
     function sanitizeAddressRecord(rawAddress) {
       if (!rawAddress || typeof rawAddress !== "object") return null;
       const full = asCleanText(rawAddress.full, "");
@@ -1052,6 +1070,14 @@
       if (providerRecordUrl) sanitized.providerRecordUrl = providerRecordUrl;
       if (providerCapturedAt) sanitized.providerCapturedAt = providerCapturedAt;
       if (providerMode) sanitized.providerMode = providerMode;
+      const point = normalizeLatLngPoint({
+        lat: rawAddress.lat ?? (rawAddress.point && rawAddress.point.lat),
+        lng: rawAddress.lng ?? rawAddress.lon ?? (rawAddress.point && rawAddress.point.lng)
+      });
+      if (point) {
+        sanitized.lat = point[0];
+        sanitized.lng = point[1];
+      }
       return sanitized;
     }
     function dedupeAddressRecords(records) {
@@ -1061,7 +1087,7 @@
       records.forEach(record => {
         const normalized = sanitizeAddressRecord(record);
         if (!normalized) return;
-        const key = `${normalized.full.toLowerCase()}|${normalizeZipCode(normalized.zip).toLowerCase()}`;
+        const key = buildAddressIdentityKey(normalized);
         if (dedupe.has(key)) return;
         dedupe.add(key);
         sanitized.push(normalized);
@@ -1383,67 +1409,6 @@
       return pages.length ? pages : [[]];
     }
     function applyMotionPref() { document.body.classList.toggle("motion-reduced", uiPrefs.motion === "reduced"); }
-    function setChipTone(el, tone = "info") {
-      if (!el) return;
-      el.setAttribute("data-tone", asCleanText(tone, "info"));
-    }
-    function setPrintStatusState(text, tone = "info") {
-      printStatusState = {
-        text: asCleanText(text, "Ready"),
-        tone: asCleanText(tone, "info")
-      };
-      updateOperationalStatusChips();
-    }
-    function updateOperationalStatusChips() {
-      const dataChip = $("dataStatusChip");
-      const lifecycle = getDatasetLifecyclePhase("NY");
-      if (dataChip) {
-        let dataLabel = "Data: Preparing";
-        let dataTone = "loading";
-        if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.ready) {
-          dataLabel = "Data: Ready";
-          dataTone = "success";
-        } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.error) {
-          dataLabel = "Data: Error";
-          dataTone = "error";
-        } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.backfilling) {
-          dataLabel = "Data: Backfill";
-          dataTone = "loading";
-        } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.indexing) {
-          dataLabel = "Data: Indexing";
-          dataTone = "loading";
-        }
-        dataChip.textContent = dataLabel;
-        setChipTone(dataChip, dataTone);
-      }
-      const printChip = $("printStatusChip");
-      if (printChip) {
-        printChip.textContent = `Print: ${printStatusState.text}`;
-        setChipTone(printChip, printStatusState.tone);
-      }
-      const campaignChip = $("campaignStatusChip");
-      if (campaignChip) {
-        let campaignLabel = "Campaign: Local";
-        let campaignTone = "warning";
-        const config = typeof readSupabaseConfig === "function" ? readSupabaseConfig() : { url: "", anonKey: "" };
-        const hasConfig = !!(config && config.url && config.anonKey);
-        if (campaignRuntime.current && campaignRuntime.current.mode === "local") {
-          campaignLabel = "Campaign: Local";
-          campaignTone = "success";
-        } else if (!hasConfig) {
-          campaignLabel = "Campaign: Setup";
-          campaignTone = "warning";
-        } else if (campaignRuntime.loading) {
-          campaignLabel = "Campaign: Syncing";
-          campaignTone = "loading";
-        } else if (campaignRuntime.current && campaignRuntime.current.publicCode) {
-          campaignLabel = campaignRuntime.syncMode === "realtime" ? "Campaign: Live" : "Campaign: Ready";
-          campaignTone = "success";
-        }
-        campaignChip.textContent = campaignLabel;
-        setChipTone(campaignChip, campaignTone);
-      }
-    }
     function buildPrintPreviewStatusMarkup(text, detail = "", tone = "error") {
       return {
         status: asCleanText(text, "Print preview ready."),
@@ -1535,26 +1500,6 @@
           if (operationsState.history.length > 24) operationsState.history.length = 24;
         }
       }
-    }
-    function setDatasetInstallProgress(value, max, label, options = {}) {
-      const wrap = $("datasetProgress");
-      const bar = $("datasetProgressBar");
-      const labelEl = $("datasetProgressLabel");
-      if (!wrap || !bar || !labelEl) return;
-      const isVisible = options.visible !== false;
-      wrap.hidden = !isVisible;
-      if (!isVisible) return;
-      const safeMax = Math.max(1, Number(max) || 1);
-      const safeValue = Math.min(safeMax, Math.max(0, Number(value) || 0));
-      const percent = Math.round((safeValue / safeMax) * 100);
-      bar.max = safeMax;
-      bar.value = safeValue;
-      const defaultLabel = `${percent}% (${safeValue.toLocaleString("en-US")} / ${safeMax.toLocaleString("en-US")})`;
-      labelEl.textContent = label ? `${label} ${defaultLabel}` : defaultLabel;
-    }
-    function hideDatasetInstallProgress() {
-      const wrap = $("datasetProgress");
-      if (wrap) wrap.hidden = true;
     }
     function formatFetchTime(date) {
       const stamp = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(date);
@@ -1689,60 +1634,36 @@
         source
       });
       try {
-        const localDatasetResult = await fetchLocalDatasetAddressRecords(polygon, territory, {
+        const overpassResult = await computeTerritoryAddressesFromOverpass(territory, {
           limit: OVERTURE_FETCH_LIMIT
         });
         if (!isOperationCurrent("fetch", fetchToken)) {
           return { canceled: true, reason: "stale_token" };
         }
-        if (localDatasetResult.error) throw new Error(localDatasetResult.error);
-        const finalized = await finalizeTerritoryAddressRecords(localDatasetResult.records || [], territory);
-        if (!isOperationCurrent("fetch", fetchToken)) {
-          return { canceled: true, reason: "stale_token" };
-        }
-        territory.addresses = Array.isArray(finalized.addresses) ? finalized.addresses : [];
-        if (finalized.zipConsensus && finalized.zipConsensus.zip) territory.zip = finalized.zipConsensus.zip;
-        territory.lastFetchedAt = nowIso();
-        lastFetchedById.set(territory.id, formatFetchTime(new Date(territory.lastFetchedAt)));
+        if (!overpassResult.updated) throw new Error(overpassResult.error || "Address refresh failed.");
         saveDb();
         renderAll();
-        const proximitySuffix = localDatasetResult.relaxedByProximity ? " (expanded near boundary)" : "";
-        const unitCoverage = localDatasetResult.unitCoverage && typeof localDatasetResult.unitCoverage === "object"
-          ? localDatasetResult.unitCoverage
-          : {};
-        const unitRowsReturned = Math.max(0, Number(unitCoverage.unitRowsReturned) || Number(localDatasetResult.unitRowsCount) || 0);
-        const confidence = localDatasetResult.unitConfidenceSummary && typeof localDatasetResult.unitConfidenceSummary === "object"
-          ? localDatasetResult.unitConfidenceSummary
-          : { high: 0, medium: 0, low: 0 };
-        const confidenceText = unitRowsReturned > 0
-          ? ` Unit confidence: high ${Math.max(0, Number(confidence.high) || 0)} / medium ${Math.max(0, Number(confidence.medium) || 0)} / low ${Math.max(0, Number(confidence.low) || 0)}.`
-          : " Unit-level apartment records are not present in this open-data coverage area.";
         if (showStatus) {
-          setStatus(`Found ${territory.addresses.length} results (${unitRowsReturned} unit-level)${proximitySuffix}.${confidenceText}`, "success", statusSource);
+          if (overpassResult.count === 0) {
+            setStatus("No residential addresses found inside this boundary.", "info", statusSource);
+          } else {
+            setStatus(`Found ${overpassResult.count} residential addresses inside this boundary.`, "success", statusSource);
+          }
         }
         logAppEvent("info", "fetch.success", {
           territoryId: territory.id,
           territoryNo: territory.territoryNo || "",
-          dataSource: "local-open-data-cache",
-          endpoint: localDatasetResult.endpoint || "",
-          localDatasetAttempted: !!localDatasetResult.attempted,
-          localDatasetInstalled: !!localDatasetResult.installed,
-          localDatasetState: localDatasetResult.state || "",
-          localDatasetRelease: localDatasetResult.release || "",
-          localDatasetRecordCount: (localDatasetResult.records || []).length,
-          localDatasetRelaxedByProximity: !!localDatasetResult.relaxedByProximity,
-          localDatasetTerritoryToleranceMeters: Math.max(0, Number(localDatasetResult.territoryToleranceMeters) || 0),
-          localDatasetError: localDatasetResult.error || "",
-          localDatasetUnitCoverage: localDatasetResult.unitCoverage || null,
-          localDatasetUnitConfidenceSummary: localDatasetResult.unitConfidenceSummary || null,
-          count: territory.addresses.length
+          dataSource: "overpass-browser",
+          endpoint: overpassResult.endpoint || "",
+          scannedElementCount: Math.max(0, Number(overpassResult.scannedElementCount) || 0),
+          acceptedElementCount: Math.max(0, Number(overpassResult.acceptedElementCount) || 0),
+          count: overpassResult.count
         });
         return {
           ok: true,
           territoryId: territory.id,
-          count: territory.addresses.length,
-          unitRowsReturned,
-          localDatasetResult
+          count: overpassResult.count,
+          overpassResult
         };
       } catch (err) {
         logAppEvent("error", "fetch.failure", {
@@ -2170,9 +2091,9 @@
         stopCampaignSync();
         campaignRuntime.client = window.supabase.createClient(config.url, config.anonKey, {
           auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
           }
         });
         campaignRuntime.configSignature = signature;
@@ -2261,6 +2182,7 @@
           createdAt: asCleanText(rawCampaign.createdAt || rawCampaign.created_at || raw.createdAt, nowIso()),
           updatedAt: asCleanText(rawCampaign.updatedAt || rawCampaign.updated_at || raw.updatedAt, nowIso())
         },
+        viewer: normalizeLocalCampaignViewer(raw.viewer, { publicCode }),
         selectedTerritoryId: asCleanText(raw.selectedTerritoryId, ""),
         territories
       };
@@ -2289,6 +2211,14 @@
           mode: "local",
           createdAt: snapshot.campaign.createdAt,
           updatedAt: snapshot.campaign.updatedAt
+        },
+        viewer: {
+          signedIn: false,
+          userId: asCleanText(snapshot.viewer && snapshot.viewer.userId, ""),
+          email: asCleanText(snapshot.viewer && snapshot.viewer.email, "").toLowerCase(),
+          displayName: asCleanText(snapshot.viewer && snapshot.viewer.displayName, ""),
+          avatarUrl: asCleanText(snapshot.viewer && snapshot.viewer.avatarUrl, ""),
+          authorized: true
         },
         selectedTerritoryId: asCleanText(snapshot.selectedTerritoryId, ""),
         territories: Array.isArray(snapshot.territories) ? snapshot.territories.map(row => ({
@@ -2321,10 +2251,10 @@
         },
         viewer: {
           signed_in: false,
-          user_id: "local-worker",
-          email: "",
-          display_name: LOCAL_CAMPAIGN_WORKER_NAME,
-          avatar_url: "",
+          user_id: normalized.viewer.userId,
+          email: normalized.viewer.email,
+          display_name: normalized.viewer.displayName,
+          avatar_url: normalized.viewer.avatarUrl,
           authorized: true
         },
         territories: normalized.territories.map(row => ({
@@ -2376,6 +2306,7 @@
           createdAt: existing && existing.campaign ? existing.campaign.createdAt : nowIso(),
           updatedAt: nowIso()
         },
+        viewer: normalizeLocalCampaignViewer(existing && existing.viewer, { publicCode }),
         selectedTerritoryId: asCleanText((options.selectedTerritoryId ?? selectedId) || (existing && existing.selectedTerritoryId), ""),
         territories
       };
@@ -2466,12 +2397,13 @@
         name: campaignDraft.name || (campaignRuntime.current && campaignRuntime.current.name) || "Local Campaign"
       });
       const normalizedTerritoryId = asCleanText(territoryId, "");
+      const viewer = normalizeLocalCampaignViewer(snapshot.viewer, { publicCode });
       const nextTerritories = snapshot.territories.map(row => row.territoryId === normalizedTerritoryId
         ? {
           ...row,
           completed: !!completed,
-          completedBy: completed ? LOCAL_CAMPAIGN_WORKER_NAME : "",
-          completedByUserId: completed ? "local-worker" : "",
+          completedBy: completed ? asCleanText(viewer.displayName, row.completedBy || "") : "",
+          completedByUserId: completed ? viewer.userId : "",
           completedByEmail: "",
           completedByAvatarUrl: "",
           completedAt: completed ? nowIso() : ""
@@ -2479,7 +2411,8 @@
         : row);
       const nextSnapshot = {
         ...snapshot,
-        selectedTerritoryId: completed ? "" : normalizedTerritoryId,
+        viewer,
+        selectedTerritoryId: "",
         territories: nextTerritories,
         campaign: {
           ...snapshot.campaign,
@@ -2759,13 +2692,13 @@
     }
     function isExplicitlyNonResidential(tags) {
       if (!tags || typeof tags !== "object") return false;
-      const amenity = lowerTag(tags, "amenity");
-      if (amenity && NON_RESIDENTIAL_AMENITIES.has(amenity)) return true;
       const building = lowerTag(tags, "building");
       const residentialOverride = !!building && RESIDENTIAL_BUILDING_TYPES.has(building);
-      if (building && NON_RESIDENTIAL_BUILDING_TYPES.has(building)) return true;
+      const amenity = lowerTag(tags, "amenity");
+      if (amenity && NON_RESIDENTIAL_AMENITIES.has(amenity) && !residentialOverride) return true;
+      if (building && NON_RESIDENTIAL_BUILDING_TYPES.has(building) && !residentialOverride) return true;
       const landuse = lowerTag(tags, "landuse");
-      if (landuse && NON_RESIDENTIAL_LANDUSE.has(landuse)) return true;
+      if (landuse && NON_RESIDENTIAL_LANDUSE.has(landuse) && !residentialOverride) return true;
       if (readTag(tags, "shop") && !residentialOverride) return true;
       if (readTag(tags, "office") && !residentialOverride) return true;
       if (readTag(tags, "craft") && !residentialOverride) return true;
@@ -2978,7 +2911,6 @@
         existing.lifecycle = entry;
         saveDatasetMeta();
       }
-      updateDatasetInfo();
     }
     function getDatasetLifecyclePhase(stateCode) {
       const normalizedState = normalizeStateLabel(stateCode || "");
@@ -2999,7 +2931,6 @@
         delete existing.lifecycle;
         saveDatasetMeta();
       }
-      updateDatasetInfo();
     }
     function resolvePreferredCity(tags, zip, territory) {
       const cityTag = readTag(tags, "addr:city");
@@ -3034,7 +2965,7 @@
       return result;
     }
     function getDataSourceMode() {
-      return "local-open-data-api";
+      return "overpass-browser";
     }
     function shouldAutoInstallStatePackage() {
       return readBooleanFlag(window.TERRITORY_AUTO_STATE_INSTALL, true);
@@ -3809,9 +3740,6 @@
       if (fallback) territory.state = fallback;
       return fallback;
     }
-    async function getLocalStrictResidentialRecords(polygonCoords, territory, options = {}) {
-      return fetchLocalDatasetAddressRecords(polygonCoords, territory, options);
-    }
     async function finalizeTerritoryAddressRecords(records, territory) {
       const sourceRecords = Array.isArray(records) ? records : [];
       const zipConsensus = getTerritoryZipConsensus(sourceRecords);
@@ -3826,13 +3754,47 @@
         return finalizeResidentialAddressRecord(record, territory, zipPlace);
       }).filter(record => {
         if (!record || !record.full) return false;
-        const dedupeKey = `${record.full.toLowerCase()}|${normalizeZipCode(record.zip).toLowerCase()}`;
+        const dedupeKey = buildAddressIdentityKey(record);
         if (dedupe.has(dedupeKey)) return false;
         dedupe.add(dedupeKey);
         return true;
-      });
+      }).sort(compareAddressRows);
       const enrichmentSummary = await enrichAddressRecords(addresses, territory);
       return { addresses, zipConsensus, enrichmentSummary };
+    }
+    async function computeTerritoryAddressesFromOverpass(territory, options = {}) {
+      if (!territory || typeof territory !== "object") {
+        return { updated: false, count: 0, reason: "territory_not_found", error: "Territory not found." };
+      }
+      const polygon = normalizePolygonCoords(territory.polygon);
+      if (polygon.length < 3) {
+        return { updated: false, count: 0, reason: "invalid_polygon", error: "Invalid territory boundary." };
+      }
+      const overpassResult = await fetchOverpassAddressRecords(polygon, territory, options);
+      if (overpassResult.error) {
+        return {
+          updated: false,
+          count: 0,
+          reason: "source_unavailable",
+          error: overpassResult.error,
+          endpoint: overpassResult.endpoint || ""
+        };
+      }
+      const finalized = await finalizeTerritoryAddressRecords(overpassResult.records, territory);
+      territory.addresses = finalized.addresses;
+      territory.zip = finalized.zipConsensus && finalized.zipConsensus.zip
+        ? finalized.zipConsensus.zip
+        : (finalized.addresses.length ? territory.zip : "");
+      territory.lastFetchedAt = nowIso();
+      lastFetchedById.set(asCleanText(territory.id, ""), formatFetchTime(new Date(territory.lastFetchedAt)));
+      return {
+        updated: true,
+        count: finalized.addresses.length,
+        endpoint: overpassResult.endpoint || "",
+        scannedElementCount: Math.max(0, Number(overpassResult.scannedElementCount) || 0),
+        acceptedElementCount: Math.max(0, Number(overpassResult.acceptedElementCount) || 0),
+        enrichmentSummary: finalized.enrichmentSummary || { attempted: 0, enriched: 0, skipped: 0 }
+      };
     }
     async function computeTerritoryAddressesFromLocalDataset(territory, options = {}) {
       if (!territory || typeof territory !== "object") {
@@ -3870,7 +3832,7 @@
     async function recomputeTerritoryAddresses(territoryId, options = {}) {
       const territory = db.find(item => item.id === territoryId);
       if (!territory) return { updated: false, reason: "not_found", count: 0, error: "Territory not found." };
-      const result = await computeTerritoryAddressesFromLocalDataset(territory, options);
+      const result = await computeTerritoryAddressesFromOverpass(territory, options);
       if (!result.updated) return result;
       if (options.persist !== false) saveDb();
       if (options.render !== false) renderAll({ focusSelected: selectedId === territoryId });
@@ -3894,12 +3856,10 @@
       const shouldShowProgress = options.showProgress !== false;
       let updatedTerritories = 0;
       let totalAddresses = 0;
-      if (shouldShowProgress) setDatasetInstallProgress(0, matching.length, `Backfilling ${normalizedState} territories 0/${matching.length}`);
       for (let i = 0; i < matching.length; i += 1) {
         const territory = matching[i];
         if (shouldShowProgress) {
           setStatus(`Backfilling ${normalizedState} territories ${i + 1}/${matching.length}...`, "loading", "dataset.backfill");
-          setDatasetInstallProgress(i, matching.length, `Backfilling ${normalizedState} territories ${i}/${matching.length}`);
         }
         const result = await computeTerritoryAddressesFromLocalDataset(territory, options);
         if (result.updated) {
@@ -3911,7 +3871,6 @@
       if (shouldPersist) saveDb();
       if (shouldRender) renderAll({ focusSelected: true });
       if (shouldShowProgress) {
-        setDatasetInstallProgress(matching.length, matching.length, `Backfilling ${normalizedState} territories complete`);
         setStatus(`Backfilled ${updatedTerritories} territories in ${normalizedState}.`, "success", "dataset.backfill");
       }
       return {
@@ -3957,42 +3916,7 @@
       };
       saveDatasetMeta();
       setDatasetLifecyclePhase(normalizedState, DATASET_LIFECYCLE_PHASES.ready, `${normalizedState} dataset ready.`);
-      updateDatasetInfo();
       return { ran: true, state: normalizedState, release, summary };
-    }
-    function updateDatasetInfo() {
-      const infoEl = $("datasetInfo");
-      if (!infoEl) return;
-      const stateCode = "NY";
-      selectedDatasetState = stateCode;
-      const stateName = getStateName(stateCode || "");
-      const meta = datasetMeta && stateCode ? datasetMeta[stateCode] : null;
-      const lifecycle = getDatasetLifecyclePhase(stateCode);
-      let text = "";
-      if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.downloading) {
-        text = lifecycle.detail || `${stateName || stateCode || "Selected state"} preparing...`;
-      } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.indexing) {
-        text = lifecycle.detail || `${stateName || stateCode || "Selected state"} preparing...`;
-      } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.backfilling) {
-        text = lifecycle.detail || `${stateName || stateCode || "Selected state"} preparing...`;
-      } else if (lifecycle && lifecycle.phase === DATASET_LIFECYCLE_PHASES.error) {
-        text = lifecycle.detail || `${stateName || stateCode || "Selected state"} error.`;
-      } else if (!stateCode || !isSupportedStateCode(stateCode)) {
-        text = "Select a supported state.";
-      } else if (!OVERTURE_PUBLISHED_STATES.has(stateCode)) {
-        text = `State package not yet published for ${stateCode}.`;
-      } else if (!meta || !meta.release || !isStrictResidentialReadyMeta(meta)) {
-        text = `${stateName || stateCode} preparing local data cache...`;
-      } else {
-        text = `${stateName || stateCode} ready.`;
-      }
-      infoEl.textContent = `Address data: NY. ${text}`;
-      updateOperationalStatusChips();
-    }
-    function populateStateSelector() {
-      selectedDatasetState = "NY";
-      saveSelectedDatasetState();
-      updateDatasetInfo();
     }
     function getLocalDataApiBaseUrl() {
       const explicit = asCleanText(
@@ -4072,7 +3996,6 @@
       const previousMeta = datasetMeta[normalizedState] && typeof datasetMeta[normalizedState] === "object"
         ? datasetMeta[normalizedState]
         : {};
-      const progress = statusPayload.progress && typeof statusPayload.progress === "object" ? statusPayload.progress : {};
       const datasetsInstalled = statusPayload.datasetsInstalled && typeof statusPayload.datasetsInstalled === "object"
         ? statusPayload.datasetsInstalled
         : {};
@@ -4111,14 +4034,6 @@
       const lifecyclePhase = phaseToLifecyclePhase(statusPayload.phase);
       const detail = asCleanText(statusPayload.phaseDetail, "");
       setDatasetLifecyclePhase(normalizedState, lifecyclePhase, detail || `${normalizedState} ${lifecyclePhase}.`);
-      const total = Math.max(0, Number(progress.total) || 0);
-      const current = Math.max(0, Number(progress.current) || 0);
-      if (lifecyclePhase === DATASET_LIFECYCLE_PHASES.downloading || lifecyclePhase === DATASET_LIFECYCLE_PHASES.indexing || lifecyclePhase === DATASET_LIFECYCLE_PHASES.backfilling) {
-        setDatasetInstallProgress(current, total || 1, detail || `${normalizedState} ${lifecyclePhase}...`);
-      } else if (lifecyclePhase === DATASET_LIFECYCLE_PHASES.ready) {
-        hideDatasetInstallProgress();
-      }
-      updateDatasetInfo();
       return nextMeta;
     }
     async function fetchStateDatasetStatus(stateCode) {
@@ -4208,7 +4123,6 @@
         } finally {
           datasetAutoInstallPromises.delete(normalizedState);
           setDatasetButtonsLoading(false);
-          updateDatasetInfo();
         }
       })();
       datasetAutoInstallPromises.set(normalizedState, autoInstallPromise);
@@ -4446,7 +4360,12 @@
       const preferredState = normalizeStateLabel(record.state || (zipPlace && zipPlace.state) || (territory && territory.state) || "");
       const full = formatCompleteAddress(record.streetLine, preferredCity, preferredState, record.zip);
       if (!full) return null;
-      return { full, zip: record.zip };
+      const finalized = { full, zip: record.zip };
+      if (record.point && Number.isFinite(Number(record.point.lat)) && Number.isFinite(Number(record.point.lng))) {
+        finalized.lat = Number(record.point.lat);
+        finalized.lng = Number(record.point.lng);
+      }
+      return finalized;
     }
     function formatCompleteAddress(streetLine, city, state, zip) {
       const cleanStreet = String(streetLine ?? "").replace(/\s+/g, " ").trim();
@@ -4460,6 +4379,15 @@
       if (stateZip) return `${cleanStreet}, ${stateZip}`;
       return cleanStreet;
     }
+    function compareAddressRows(a, b) {
+      const left = asCleanText(a && a.full, "");
+      const right = asCleanText(b && b.full, "");
+      const textCompare = left.localeCompare(right, "en-US", { numeric: true, sensitivity: "base" });
+      if (textCompare) return textCompare;
+      const leftPoint = normalizeAddressPointKey(a);
+      const rightPoint = normalizeAddressPointKey(b);
+      return leftPoint.localeCompare(rightPoint, "en-US", { sensitivity: "base" });
+    }
     function extractElementPoint(element) {
       if (!element || typeof element !== "object") return null;
       if (Number.isFinite(Number(element.lat)) && Number.isFinite(Number(element.lon))) {
@@ -4471,6 +4399,192 @@
         if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
       }
       return null;
+    }
+    function getOverpassApiUrl() {
+      const explicit = asCleanText(window.TERRITORY_OVERPASS_API_URL || "", "");
+      return (explicit || OVERPASS_API_DEFAULT_URL).replace(/\/+$/, "");
+    }
+    function buildOverpassPolygonString(polygonCoords) {
+      const polygon = normalizePolygonCoords(polygonCoords);
+      if (polygon.length < 3) return "";
+      const closedPolygon = polygon.slice();
+      const first = polygon[0];
+      const last = polygon[polygon.length - 1];
+      if (!last || last[0] !== first[0] || last[1] !== first[1]) closedPolygon.push(first);
+      return closedPolygon.map(([lat, lng]) => `${Number(lat).toFixed(7)} ${Number(lng).toFixed(7)}`).join(" ");
+    }
+    function buildOverpassAddressQuery(polygonCoords, options = {}) {
+      const polygonText = buildOverpassPolygonString(polygonCoords);
+      if (!polygonText) throw new Error("Invalid territory boundary.");
+      const timeoutSeconds = Math.max(10, Number(options.queryTimeoutSeconds) || OVERPASS_QUERY_TIMEOUT_SECONDS);
+      const selectors = [
+        `node(poly:"${polygonText}")["addr:housenumber"];`,
+        `way(poly:"${polygonText}")["addr:housenumber"];`,
+        `relation(poly:"${polygonText}")["addr:housenumber"];`,
+        `node(poly:"${polygonText}")["addr:housename"];`,
+        `way(poly:"${polygonText}")["addr:housename"];`,
+        `relation(poly:"${polygonText}")["addr:housename"];`,
+        `node(poly:"${polygonText}")["addr:full"];`,
+        `way(poly:"${polygonText}")["addr:full"];`,
+        `relation(poly:"${polygonText}")["addr:full"];`
+      ];
+      return [
+        `[out:json][timeout:${timeoutSeconds}];`,
+        "(",
+        ...selectors,
+        ");",
+        "out center tags qt;"
+      ].join("\n");
+    }
+    function buildOverpassHttpStatusMessage(status, detail = "") {
+      const normalizedDetail = asCleanText(detail, "").toLowerCase();
+      if (Number(status) === 429 || normalizedDetail.includes("rate limit") || normalizedDetail.includes("too many requests")) {
+        return "Address refresh failed. Overpass rate limit reached.";
+      }
+      if (Number(status) >= 500) return "Address refresh failed. Overpass is unavailable.";
+      if (Number(status) >= 400) return "Address refresh failed. Overpass rejected the query.";
+      return "Address refresh failed. Overpass request did not complete.";
+    }
+    function buildOverpassFetchFailureMessage(error) {
+      const detail = asCleanText((error && error.message) || error, "request failed").toLowerCase();
+      if (detail.includes("timeout")) return "Address refresh failed. Overpass timed out.";
+      if (detail.includes("rate limit") || detail.includes("too many requests")) return "Address refresh failed. Overpass rate limit reached.";
+      if (detail.includes("429")) return "Address refresh failed. Overpass rate limit reached.";
+      if (detail.includes("503") || detail.includes("504") || detail.includes("502")) return "Address refresh failed. Overpass is unavailable.";
+      if (detail.includes("fetch failed") || detail.includes("failed to fetch")) return "Address refresh failed. Overpass is unreachable.";
+      return "Address refresh failed. Overpass request did not complete.";
+    }
+    async function fetchOverpassJson(query, options = {}) {
+      const url = getOverpassApiUrl();
+      const timeoutMs = Math.max(10000, Number(options.timeoutMs) || OVERPASS_API_TIMEOUT_MS);
+      let response = null;
+      try {
+        response = await withTimeout(fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "Accept": "application/json"
+          },
+          body: `data=${encodeURIComponent(String(query || ""))}`
+        }), timeoutMs);
+      } catch (error) {
+        throw new Error(buildOverpassFetchFailureMessage(error));
+      }
+      if (!response || typeof response.ok !== "boolean") {
+        throw new Error("Address refresh failed. Overpass did not return a response.");
+      }
+      let rawText = "";
+      if (typeof response.text === "function") {
+        try {
+          rawText = await response.text();
+        } catch (_) {
+          rawText = "";
+        }
+      }
+      let payload = null;
+      if (rawText) {
+        try {
+          payload = JSON.parse(rawText);
+        } catch (_) {
+          payload = null;
+        }
+      } else if (typeof response.json === "function") {
+        try {
+          payload = await response.json();
+        } catch (_) {
+          payload = null;
+        }
+      }
+      if (!response.ok) {
+        const detail = (payload && payload.remark) || rawText || "";
+        throw new Error(buildOverpassHttpStatusMessage(response.status, detail));
+      }
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Address refresh failed. Overpass returned an invalid response.");
+      }
+      return payload;
+    }
+    function buildOverpassResidentialAddressRecords(elements, polygonCoords, territory, options = {}) {
+      const polygon = normalizePolygonCoords(polygonCoords);
+      if (polygon.length < 3) return { records: [], scannedElementCount: 0, acceptedElementCount: 0 };
+      const rawElements = Array.isArray(elements) ? elements : [];
+      const insideElements = [];
+      const baseRecords = [];
+      rawElements.forEach(element => {
+        const point = extractElementPoint(element);
+        if (!point || !pointInPolygon([point.lat, point.lng], polygon)) return;
+        const tags = element && element.tags && typeof element.tags === "object" ? element.tags : {};
+        if (isExplicitlyNonResidential(tags)) return;
+        insideElements.push(element);
+        const record = buildResidentialAddressRecord(element, territory);
+        if (!record || !record.point || !pointInPolygon([record.point.lat, record.point.lng], polygon)) return;
+        baseRecords.push(record);
+      });
+      const derivedRecords = buildUnitDerivedAddressRecords(insideElements, baseRecords, territory)
+        .filter(record => !!(record && record.point && pointInPolygon([record.point.lat, record.point.lng], polygon)));
+      const limit = Math.max(1, Number(options.limit) || OVERTURE_FETCH_LIMIT);
+      const dedupe = new Set();
+      const merged = [];
+      [...baseRecords, ...derivedRecords].forEach(record => {
+        if (!record || !record.streetLine) return;
+        const previewFull = formatCompleteAddress(record.streetLine, record.city, record.state, record.zip);
+        const dedupeKey = buildAddressIdentityKey({ full: previewFull || record.streetLine, point: record.point });
+        if (!dedupeKey || dedupe.has(dedupeKey)) return;
+        dedupe.add(dedupeKey);
+        merged.push(record);
+      });
+      return {
+        records: merged.slice(0, limit),
+        scannedElementCount: rawElements.length,
+        acceptedElementCount: insideElements.length
+      };
+    }
+    async function fetchOverpassAddressRecords(polygonCoords, territory, options = {}) {
+      const polygon = normalizePolygonCoords(polygonCoords);
+      const endpoint = getOverpassApiUrl();
+      if (polygon.length < 3) {
+        return {
+          records: [],
+          endpoint,
+          attempted: false,
+          error: "Invalid territory boundary.",
+          scannedElementCount: 0,
+          acceptedElementCount: 0
+        };
+      }
+      try {
+        const query = buildOverpassAddressQuery(polygon, options);
+        const payload = await fetchOverpassJson(query, {
+          timeoutMs: Math.max(10000, Number(options.timeoutMs) || OVERPASS_API_TIMEOUT_MS)
+        });
+        const normalized = buildOverpassResidentialAddressRecords(payload && payload.elements, polygon, territory, {
+          limit: Math.max(1, Number(options.limit) || OVERTURE_FETCH_LIMIT)
+        });
+        return {
+          records: normalized.records,
+          endpoint,
+          attempted: true,
+          error: "",
+          scannedElementCount: normalized.scannedElementCount,
+          acceptedElementCount: normalized.acceptedElementCount,
+          remark: asCleanText(payload && payload.remark, "")
+        };
+      } catch (err) {
+        const message = asCleanText((err && err.message) || "Address refresh failed. Overpass request did not complete.", "Address refresh failed. Overpass request did not complete.");
+        logAppEvent("error", "overpass.fetch.failure", {
+          endpoint,
+          message,
+          territoryId: asCleanText(territory && territory.id, "")
+        });
+        return {
+          records: [],
+          endpoint,
+          attempted: true,
+          error: message,
+          scannedElementCount: 0,
+          acceptedElementCount: 0
+        };
+      }
     }
     function getTerritoryZipConsensus(records) {
       if (!Array.isArray(records) || !records.length) return null;
@@ -4622,16 +4736,20 @@
       if (isExplicitlyNonResidential(tags)) return null;
       const street = readTag(tags, "addr:street");
       const numberOrName = readTag(tags, "addr:housenumber") || readTag(tags, "addr:housename");
-      if (!street || !numberOrName) return null;
       // Accept explicit residential features, and also neutral address points with no business/institution tags.
       const rawUnit = UNIT_TAG_KEYS.map(key => readTag(tags, key)).find(Boolean) || "";
       const unit = normalizeUnitLabel(rawUnit);
-      const streetLine = `${numberOrName} ${street}${unit ? ` ${unit}` : ""}`.replace(/\s+/g, " ").trim();
+      const fullAddress = readTag(tags, "addr:full");
+      let streetLine = `${numberOrName} ${street}${unit ? ` ${unit}` : ""}`.replace(/\s+/g, " ").trim();
+      if (!streetLine && fullAddress) {
+        streetLine = fullAddress.includes(",") ? fullAddress.split(",")[0].trim() : fullAddress;
+      }
+      if (!streetLine) return null;
       const zip = normalizeZipCode(readTag(tags, "addr:postcode"));
       const city = resolvePreferredCity(tags, zip, territory);
       const state = normalizeStateLabel(readTag(tags, "addr:state") || readTag(tags, "addr:province") || readTag(tags, "is_in:state"));
       const point = extractElementPoint(element);
-      return { streetLine, numberOrName, streetName: street, city, state, zip, point };
+      return { streetLine, numberOrName, streetName: street || streetLine, unit, city, state, zip, point };
     }
     function getBoundsCenterFromCoords(coords) {
       const normalized = normalizePolygonCoords(coords);
@@ -6120,7 +6238,7 @@
       });
       let recomputeResult = null;
       if (!options.skipRecompute) {
-        recomputeResult = await computeTerritoryAddressesFromLocalDataset(territory, {
+        recomputeResult = await computeTerritoryAddressesFromOverpass(territory, {
           limit: OVERTURE_FETCH_LIMIT,
           skipBackfill: true
         });
@@ -6897,7 +7015,6 @@
         const readyMessage = asCleanText(renderResult && renderResult.readyMessage, config.successStatus || "Print ready.");
         const readyType = asCleanText(renderResult && renderResult.readyType, "success");
         setStatus(readyMessage, readyType, config.statusSource);
-        setPrintStatusState(config.readyChipText || "Ready", readyType === "success" ? "success" : "warning");
         logAppEvent("info", `${config.logPrefix}.complete`, {
           outputMode: "popup_window",
           ...(config.completeLog || {}),
@@ -6931,11 +7048,9 @@
             retry,
             retryLabel: "Open Print Window"
           });
-          setPrintStatusState(stage === "popup acquisition" ? "Popup blocked" : "Needs review", "error");
           setStatus(message, "error", config.statusSource);
           return { ok: false, fallback: true, stage, error };
         }
-        setPrintStatusState("Unavailable", "error");
         throw error;
       } finally {
         if (isOperationCurrent("print", printToken)) setPrintLoading(false);
@@ -7437,8 +7552,6 @@
       if (campaignCard) campaignCard.hidden = viewMode !== VIEW_MODES.campaign;
       const selectionInputs = $("selectionInputs");
       if (selectionInputs) selectionInputs.hidden = viewMode === VIEW_MODES.campaign;
-      const selectionDataTools = $("selectionDataTools");
-      if (selectionDataTools) selectionDataTools.hidden = viewMode === VIEW_MODES.campaign;
       const selectionActions = $("selectionActions");
       if (selectionActions) selectionActions.hidden = viewMode === VIEW_MODES.campaign;
       const status = $("status");
@@ -7485,10 +7598,21 @@
       getSortedTerritories(db).forEach(territory => {
         normalizePolygonCoords(territory && territory.polygon).forEach(point => coords.push(point));
       });
+      if (coords.length < 3) return;
       const maxZoom = (typeof map.getMaxZoom === "function" && Number.isFinite(map.getMaxZoom()))
-        ? Math.max(13, Math.min(18, map.getMaxZoom()))
-        : 18;
-      fitMapToCoordsAtMaxSafeZoom(map, coords, { padding: [12, 12], maxZoom, marginPx: 10 });
+        ? Math.min(19, Math.max(13, map.getMaxZoom()))
+        : 19;
+      const applyFit = () => fitMapToCoordsAtMaxSafeZoom(map, coords, { padding: [8, 8], maxZoom, marginPx: 6 });
+      if (typeof map.invalidateSize === "function") map.invalidateSize(true);
+      applyFit();
+      if (typeof requestAnimationFrame === "function") {
+        // Re-fit once the mode-change layout settles so All Territories does not stay overly zoomed out.
+        requestAnimationFrame(() => {
+          if (!map) return;
+          if (typeof map.invalidateSize === "function") map.invalidateSize(true);
+          applyFit();
+        });
+      }
     }
     function getTerritoryRenderStyle(territoryId, isSelected) {
       if (viewMode === VIEW_MODES.campaign) {
@@ -7724,7 +7848,11 @@
         if (!selectedTerritory) selectedStatus.textContent = "Open";
         else if (!campaignRuntime.current) selectedStatus.textContent = "Local campaign ready";
         else if (isCompleted) {
-          const workerName = selectedCampaign.completedBy || selectedCampaign.completedByEmail || (isLocalCampaign ? LOCAL_CAMPAIGN_WORKER_NAME : "Google worker");
+          const workerName = selectedCampaign.completedBy
+            || selectedCampaign.completedByEmail
+            || (isLocalCampaign
+              ? asCleanText(campaignRuntime.current && campaignRuntime.current.viewer && (campaignRuntime.current.viewer.displayName || campaignRuntime.current.viewer.display_name), "same-computer worker")
+              : "Google worker");
           const completedAt = selectedCampaign.completedAt ? ` on ${formatCampaignTimestamp(selectedCampaign.completedAt)}` : "";
           selectedStatus.textContent = `Completed by ${workerName}${completedAt}`;
         } else if (isLocalCampaign) {
@@ -7739,7 +7867,6 @@
         reopenBtn.textContent = "Reopen Selected Territory";
       }
       renderCampaignRoster();
-      updateOperationalStatusChips();
     }
     function renderAll(opts = {}) {
       const focusSelected = !!opts.focusSelected;
@@ -8208,7 +8335,8 @@
       applyMotionPref();
       updateLabelEditButtonState();
       updateCampaignUi();
-      populateStateSelector();
+      selectedDatasetState = "NY";
+      saveSelectedDatasetState();
       const assignmentModal = $("assignmentModal");
       if (assignmentModal) {
         assignmentModal.addEventListener("click", event => {
@@ -8791,6 +8919,9 @@
         getSortedTerritories
       }),
       addresses: Object.freeze({
+        getOverpassApiUrl,
+        buildOverpassAddressQuery,
+        fetchOverpassAddressRecords,
         buildResidentialAddressRecord,
         buildUnitDerivedAddressRecords,
         finalizeResidentialAddressRecord,
@@ -8811,6 +8942,7 @@
         isResidentialBuildingClass,
         parseBuildingGeometryWkt,
         isAddressInResidentialBuilding,
+        computeTerritoryAddressesFromOverpass,
         ensureStateDatasetReady,
         installStateDataset,
         fetchLocalDatasetAddressRecords,
@@ -8900,7 +9032,6 @@
         startLocalCampaignSync();
         initControls();
         renderPrintPreviewOverlay();
-        updateOperationalStatusChips();
         if (!selectedId && Array.isArray(db) && db.length) selectedId = asCleanText(db[0].id, "");
         const startupHarmonize = harmonizeTerritoryGeometryIfNeeded();
         if (startupHarmonize && startupHarmonize.changed) {
@@ -8927,21 +9058,12 @@
               });
             });
         }
-        ensureStateDatasetReady(selectedDatasetState, {
-          silent: false,
-          statusSource: "dataset.startup"
-        }).then(result => {
-          if (!result || !result.ready) return;
+        if (viewMode !== VIEW_MODES.campaign) {
           const territory = db.find(item => asCleanText(item && item.id, "") === asCleanText(selectedId, ""));
-          if (!territory) return;
-          if (!Array.isArray(territory.addresses) || !territory.addresses.length || isTerritoryFetchStale(territory)) {
+          if (territory && (!Array.isArray(territory.addresses) || !territory.addresses.length || isTerritoryFetchStale(territory))) {
             scheduleAutoFetchForTerritory(territory.id, "startup_stale", { immediate: true });
           }
-        }).catch(err => {
-          const message = String((err && err.message) || err || "dataset_startup_prepare_failed");
-          setStatus(message, "error", "dataset.startup");
-          logAppEvent("error", "dataset.startup.ensure.failure", { state: selectedDatasetState, message });
-        });
+        }
         requestAnimationFrame(() => document.body.classList.add("loaded"));
         if (checks && checks.dbValidation && Array.isArray(checks.dbValidation.warnings) && checks.dbValidation.warnings.length) {
           logAppEvent("info", "app.startup.warnings", { warnings: checks.dbValidation.warnings });

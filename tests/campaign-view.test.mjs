@@ -31,9 +31,14 @@ function createLocalStorage({ db = [], localCampaigns = {} } = {}) {
   };
 }
 
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function createLeafletMock() {
   const maps = [];
   const polygons = [];
+  const BASE_SCALE = 14000;
 
   class MockGroup {
     constructor() {
@@ -62,8 +67,13 @@ function createLeafletMock() {
     return {
       getSouthWest: () => ({ lat: minLat, lng: minLng }),
       getNorthEast: () => ({ lat: maxLat, lng: maxLng }),
+      getCenter: () => ({ lat: minLat + ((maxLat - minLat) / 2), lng: minLng + ((maxLng - minLng) / 2) }),
       pad: () => makeBounds(latlngs)
     };
+  }
+
+  function getScaleForZoom(zoom) {
+    return BASE_SCALE * Math.pow(2, Number(zoom || 13) - 13);
   }
 
   const L = {
@@ -73,14 +83,21 @@ function createLeafletMock() {
       const panes = {};
       const listeners = {};
       let currentZoom = 13;
+      let currentCenter = { lat: 40.665, lng: -73.78 };
       const mapObj = {
         id,
         setView: vi.fn((_center, zoom) => {
+          if (_center && Number.isFinite(Number(_center.lat)) && Number.isFinite(Number(_center.lng))) {
+            currentCenter = { lat: Number(_center.lat), lng: Number(_center.lng) };
+          } else if (Array.isArray(_center) && _center.length >= 2) {
+            currentCenter = { lat: Number(_center[0]), lng: Number(_center[1]) };
+          }
           if (typeof zoom === "number") currentZoom = zoom;
           return mapObj;
         }),
         getMaxZoom: vi.fn(() => 19),
         getZoom: vi.fn(() => currentZoom),
+        getCenter: vi.fn(() => currentCenter),
         setZoom: vi.fn((zoom) => {
           currentZoom = zoom;
           return mapObj;
@@ -93,7 +110,32 @@ function createLeafletMock() {
           if (!panes[name]) panes[name] = { style: {}, classList: { add: vi.fn() } };
           return panes[name];
         }),
-        fitBounds: vi.fn(),
+        getBoundsZoom: vi.fn((bounds, _inside, padding) => {
+          const sw = bounds && typeof bounds.getSouthWest === "function" ? bounds.getSouthWest() : { lat: 0, lng: 0 };
+          const ne = bounds && typeof bounds.getNorthEast === "function" ? bounds.getNorthEast() : { lat: 0, lng: 0 };
+          const size = mapObj.getSize();
+          const paddingX = Number(padding && padding.x) || 0;
+          const paddingY = Number(padding && padding.y) || 0;
+          const availableWidth = Math.max(1, size.x - (paddingX * 2));
+          const availableHeight = Math.max(1, size.y - (paddingY * 2));
+          const lngSpan = Math.max(Math.abs(Number(ne.lng) - Number(sw.lng)), 1e-9);
+          const latSpan = Math.max(Math.abs(Number(ne.lat) - Number(sw.lat)), 1e-9);
+          const maxScale = Math.min(availableWidth / lngSpan, availableHeight / latSpan);
+          return Math.max(0, Math.floor(13 + Math.log2(maxScale / BASE_SCALE)));
+        }),
+        fitBounds: vi.fn((bounds, options = {}) => {
+          const sw = bounds && typeof bounds.getSouthWest === "function" ? bounds.getSouthWest() : { lat: 0, lng: 0 };
+          const ne = bounds && typeof bounds.getNorthEast === "function" ? bounds.getNorthEast() : { lat: 0, lng: 0 };
+          const padding = Array.isArray(options.padding)
+            ? { x: Number(options.padding[0]) || 0, y: Number(options.padding[1]) || 0 }
+            : { x: Number(options.padding) || 0, y: Number(options.padding) || 0 };
+          currentCenter = {
+            lat: Number(sw.lat) + ((Number(ne.lat) - Number(sw.lat)) / 2),
+            lng: Number(sw.lng) + ((Number(ne.lng) - Number(sw.lng)) / 2)
+          };
+          currentZoom = Math.min(Number(options.maxZoom) || 19, mapObj.getBoundsZoom(bounds, false, padding));
+          return mapObj;
+        }),
         invalidateSize: vi.fn(),
         on: vi.fn((event, callback) => {
           listeners[event] = callback;
@@ -103,9 +145,10 @@ function createLeafletMock() {
         latLngToContainerPoint: vi.fn((latlng) => {
           const lat = Number(Array.isArray(latlng) ? latlng[0] : latlng?.lat);
           const lng = Number(Array.isArray(latlng) ? latlng[1] : latlng?.lng);
+          const scale = getScaleForZoom(currentZoom);
           return {
-            x: Math.round((lng + 180) * 4.5),
-            y: Math.round((90 - lat) * 4.5)
+            x: Math.round((mapObj.getSize().x / 2) + ((lng - currentCenter.lng) * scale)),
+            y: Math.round((mapObj.getSize().y / 2) + ((currentCenter.lat - lat) * scale))
           };
         })
       };
@@ -137,27 +180,36 @@ function createLeafletMock() {
       polygons.push(polygon);
       return polygon;
     }),
-    latLngBounds: vi.fn((latlngs) => makeBounds(Array.isArray(latlngs) ? latlngs.flat() : []))
+    latLngBounds: vi.fn((latlngs) => makeBounds(Array.isArray(latlngs) ? latlngs.flat() : [])),
+    point: vi.fn((x, y) => ({ x: Number(x) || 0, y: Number(y) || 0 }))
   };
 
   return { L, maps, polygons };
 }
 
-function createSupabaseCampaignMock({ signedIn = false, approved = false } = {}) {
+function createSupabaseCampaignMock({
+  signedIn = false,
+  approved = false,
+  userId = "user-1",
+  email = "worker@example.com",
+  displayName = "Worker Alex",
+  avatarUrl = "https://example.com/avatar.png",
+  territories: initialTerritories = null
+} = {}) {
   let session = signedIn
     ? {
       user: {
-        id: "user-1",
-        email: "worker@example.com",
+        id: userId,
+        email,
         user_metadata: {
-          full_name: "Worker Alex",
-          avatar_url: "https://example.com/avatar.png"
+          full_name: displayName,
+          avatar_url: avatarUrl
         }
       }
     }
     : null;
 
-  let territories = [
+  let territories = cloneJson(Array.isArray(initialTerritories) ? initialTerritories : [
     {
       territory_id: "t-1",
       territory_no: "1",
@@ -184,7 +236,7 @@ function createSupabaseCampaignMock({ signedIn = false, approved = false } = {})
       completed_by_avatar_url: "",
       completed_at: ""
     }
-  ];
+  ]);
 
   const getViewer = () => ({
     signed_in: !!session,
@@ -254,49 +306,57 @@ function createSupabaseCampaignMock({ signedIn = false, approved = false } = {})
   return { client, auth, channel };
 }
 
-function createLocalCampaignSnapshot({ publicCode = "SPRING01", name = "Spring Campaign" } = {}) {
-  return {
-    [publicCode]: {
-      campaign: {
-        id: `local:${publicCode}`,
-        name,
-        publicCode,
-        approvedEmails: [],
-        mode: "local",
-        createdAt: "2026-03-06T12:00:00Z",
-        updatedAt: "2026-03-06T12:00:00Z"
+function createLocalCampaignSnapshot({ publicCode = "SPRING01", name = "Spring Campaign", viewer, territories } = {}) {
+  const snapshot = {
+    campaign: {
+      id: `local:${publicCode}`,
+      name,
+      publicCode,
+      approvedEmails: [],
+      mode: "local",
+      createdAt: "2026-03-06T12:00:00Z",
+      updatedAt: "2026-03-06T12:00:00Z"
+    },
+    selectedTerritoryId: "",
+    viewer: viewer === false ? undefined : {
+      userId: viewer && viewer.userId ? viewer.userId : `local:${publicCode}:worker-1`,
+      displayName: viewer && Object.prototype.hasOwnProperty.call(viewer, "displayName") ? viewer.displayName : "Jordan Lee",
+      email: viewer && viewer.email ? viewer.email : "",
+      avatarUrl: viewer && viewer.avatarUrl ? viewer.avatarUrl : "",
+      authorized: true,
+      signedIn: false
+    },
+    territories: Array.isArray(territories) ? cloneJson(territories) : [
+      {
+        territoryId: "t-1",
+        territoryNo: "1",
+        locality: "Alpha",
+        polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
+        labelAnchor: { lat: 40.705, lng: -74.005 },
+        completed: false,
+        completedBy: "",
+        completedByUserId: "",
+        completedByEmail: "",
+        completedByAvatarUrl: "",
+        completedAt: ""
       },
-      selectedTerritoryId: "",
-      territories: [
-        {
-          territoryId: "t-1",
-          territoryNo: "1",
-          locality: "Alpha",
-          polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
-          labelAnchor: { lat: 40.705, lng: -74.005 },
-          completed: false,
-          completedBy: "",
-          completedByUserId: "",
-          completedByEmail: "",
-          completedByAvatarUrl: "",
-          completedAt: ""
-        },
-        {
-          territoryId: "t-2",
-          territoryNo: "2",
-          locality: "Beta",
-          polygon: [[40.72, -74.03], [40.72, -74.02], [40.73, -74.02], [40.73, -74.03]],
-          labelAnchor: { lat: 40.725, lng: -74.025 },
-          completed: false,
-          completedBy: "",
-          completedByUserId: "",
-          completedByEmail: "",
-          completedByAvatarUrl: "",
-          completedAt: ""
-        }
-      ]
-    }
+      {
+        territoryId: "t-2",
+        territoryNo: "2",
+        locality: "Beta",
+        polygon: [[40.72, -74.03], [40.72, -74.02], [40.73, -74.02], [40.73, -74.03]],
+        labelAnchor: { lat: 40.725, lng: -74.025 },
+        completed: false,
+        completedBy: "",
+        completedByUserId: "",
+        completedByEmail: "",
+        completedByAvatarUrl: "",
+        completedAt: ""
+      }
+    ]
   };
+  if (viewer === false) delete snapshot.viewer;
+  return { [publicCode]: snapshot };
 }
 
 async function flushAll() {
@@ -308,6 +368,7 @@ async function bootstrap({
   appUrl = "http://localhost/campaign.html?campaign=SPRING01",
   signedIn = false,
   approved = false,
+  supabaseOptions = {},
   configEnabled = true,
   fetchImpl = null,
   navigateMock = null,
@@ -316,7 +377,7 @@ async function bootstrap({
   const dom = new JSDOM(CAMPAIGN_HTML, { runScripts: "outside-only", url: appUrl });
   const { window } = dom;
   const leaflet = createLeafletMock();
-  const supabaseMock = createSupabaseCampaignMock({ signedIn, approved });
+  const supabaseMock = createSupabaseCampaignMock({ signedIn, approved, ...supabaseOptions });
   Object.defineProperty(window, "localStorage", { value: createLocalStorage({ db: [], localCampaigns }), configurable: true });
   Object.defineProperty(window, "L", { value: leaflet.L, configurable: true });
   Object.defineProperty(window, "supabase", {
@@ -389,7 +450,7 @@ describe("campaign view", () => {
     }));
   });
 
-  it("loads same-computer local campaigns without Google auth", async () => {
+  it("loads same-computer local campaigns with the saved worker display name", async () => {
     activeEnv = await bootstrap({
       appUrl: "file:///D:/Code%20Projects/Territory%20App/campaign.html?mode=local&campaign=SPRING01",
       configEnabled: false,
@@ -400,7 +461,71 @@ describe("campaign view", () => {
     expect(document.getElementById("authGate").hidden).toBe(true);
     expect(document.getElementById("modeChip").textContent).toMatch(/Local Campaign/i);
     expect(document.getElementById("territoryPicker").disabled).toBe(false);
+    expect(document.getElementById("workerDisplayName").textContent).toBe("Jordan Lee");
     expect(document.getElementById("workerDisplayMeta").textContent).toMatch(/same-computer local campaign/i);
+    expect(document.getElementById("workerSessionChip").disabled).toBe(false);
+    expect(document.getElementById("workerSessionChip").getAttribute("aria-label")).toMatch(/edit publisher display name/i);
+    expect(document.getElementById("localWorkerEditor").hidden).toBe(true);
+    expect(document.querySelector('label[for="localWorkerName"]')?.textContent).toBe("Publisher Name");
+  });
+
+  it("renders the viewer avatar image when an avatar URL is available", async () => {
+    activeEnv = await bootstrap({
+      appUrl: "file:///D:/Code%20Projects/Territory%20App/campaign.html?mode=local&campaign=SPRING01",
+      configEnabled: false,
+      localCampaigns: createLocalCampaignSnapshot({
+        viewer: {
+          userId: "local:SPRING01:worker-1",
+          displayName: "Jordan Lee",
+          avatarUrl: "https://example.com/jordan.png"
+        }
+      })
+    });
+    const { document } = activeEnv;
+    const avatarImage = document.querySelector("#workerAvatar img");
+
+    expect(avatarImage).not.toBeNull();
+    expect(avatarImage?.getAttribute("src")).toBe("https://example.com/jordan.png");
+  });
+
+  it("requires saving a local worker name before local completion actions are enabled", async () => {
+    activeEnv = await bootstrap({
+      appUrl: "file:///D:/Code%20Projects/Territory%20App/campaign.html?mode=local&campaign=SPRING01",
+      configEnabled: false,
+      localCampaigns: createLocalCampaignSnapshot({
+        viewer: {
+          userId: "local:SPRING01:worker-1",
+          displayName: ""
+        }
+      })
+    });
+    const { document, window } = activeEnv;
+    const picker = document.getElementById("territoryPicker");
+
+    picker.value = "t-1";
+    picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    await flushAll();
+
+    expect(document.getElementById("workerDisplayName").textContent).toMatch(/Publisher Name Required/i);
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Save Publisher Name");
+    expect(document.getElementById("btnMarkCompleted").disabled).toBe(true);
+    expect(document.getElementById("workerSessionChip").getAttribute("aria-label")).toMatch(/set publisher display name/i);
+    expect(document.getElementById("localWorkerEditor").hidden).toBe(true);
+
+    const nameInput = document.getElementById("localWorkerName");
+    nameInput.focus();
+    nameInput.value = "Jordan Lee";
+    nameInput.dispatchEvent(new window.Event("input", { bubbles: true }));
+    document.getElementById("btnSaveLocalWorkerName").click();
+    await flushAll();
+
+    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY_LOCAL_CAMPAIGNS) || "{}");
+    expect(stored.SPRING01.viewer.displayName).toBe("Jordan Lee");
+    expect(stored.SPRING01.viewer.userId).toMatch(/^local:SPRING01:/);
+    expect(document.getElementById("workerDisplayName").textContent).toBe("Jordan Lee");
+    expect(document.getElementById("localWorkerEditor").hidden).toBe(true);
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Mark Completed");
+    expect(document.getElementById("btnMarkCompleted").disabled).toBe(false);
   });
 
   it("shows a recovery state when a same-computer local campaign snapshot is missing", async () => {
@@ -468,7 +593,7 @@ describe("campaign view", () => {
     expect(document.getElementById("territoryPicker").disabled).toBe(true);
   });
 
-  it("marks local campaign territories completed and persists the result", async () => {
+  it("toggles local territory completion for the saved worker and returns to the all-territories overview", async () => {
     activeEnv = await bootstrap({
       appUrl: "file:///D:/Code%20Projects/Territory%20App/campaign.html?mode=local&campaign=SPRING01",
       configEnabled: false,
@@ -484,11 +609,75 @@ describe("campaign view", () => {
     document.getElementById("btnMarkCompleted").click();
     await flushAll();
 
-    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY_LOCAL_CAMPAIGNS) || "{}");
+    let stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY_LOCAL_CAMPAIGNS) || "{}");
     expect(stored.SPRING01.territories.find((territory) => territory.territoryId === "t-1")?.completed).toBe(true);
+    expect(stored.SPRING01.territories.find((territory) => territory.territoryId === "t-1")?.completedBy).toBe("Jordan Lee");
+    expect(stored.SPRING01.territories.find((territory) => territory.territoryId === "t-1")?.completedByUserId).toBe(stored.SPRING01.viewer.userId);
     expect(document.getElementById("kpiCompleted").textContent).toBe("1");
     expect(document.getElementById("territoryPicker").value).toBe("");
     expect(document.getElementById("mapLegend").textContent).toMatch(/1\/2 completed/i);
+
+    picker.value = "t-1";
+    picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    await flushAll();
+
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Unmark Completed");
+    expect(document.getElementById("btnMarkCompleted").disabled).toBe(false);
+
+    await window.TerritoryCampaignView.modules.completeSelectedTerritory();
+    await flushAll();
+
+    stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY_LOCAL_CAMPAIGNS) || "{}");
+    expect(stored.SPRING01.territories.find((territory) => territory.territoryId === "t-1")?.completed).toBe(false);
+    expect(stored.SPRING01.territories.find((territory) => territory.territoryId === "t-1")?.completedBy).toBe("");
+    expect(document.getElementById("territoryPicker").value).toBe("");
+    expect(document.getElementById("mapLegend").textContent).toMatch(/0\/2 completed/i);
+  });
+
+  it("locks local territories completed by another worker", async () => {
+    activeEnv = await bootstrap({
+      appUrl: "file:///D:/Code%20Projects/Territory%20App/campaign.html?mode=local&campaign=SPRING01",
+      configEnabled: false,
+      localCampaigns: createLocalCampaignSnapshot({
+        territories: [
+          {
+            territoryId: "t-1",
+            territoryNo: "1",
+            locality: "Alpha",
+            polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
+            labelAnchor: { lat: 40.705, lng: -74.005 },
+            completed: true,
+            completedBy: "Blake Stone",
+            completedByUserId: "local:SPRING01:worker-2",
+            completedByEmail: "",
+            completedByAvatarUrl: "",
+            completedAt: "2026-03-06T12:30:00Z"
+          },
+          {
+            territoryId: "t-2",
+            territoryNo: "2",
+            locality: "Beta",
+            polygon: [[40.72, -74.03], [40.72, -74.02], [40.73, -74.02], [40.73, -74.03]],
+            labelAnchor: { lat: 40.725, lng: -74.025 },
+            completed: false,
+            completedBy: "",
+            completedByUserId: "",
+            completedByEmail: "",
+            completedByAvatarUrl: "",
+            completedAt: ""
+          }
+        ]
+      })
+    });
+    const { document, window } = activeEnv;
+    const picker = document.getElementById("territoryPicker");
+
+    picker.value = "t-1";
+    picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    await flushAll();
+
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Completed by Blake Stone");
+    expect(document.getElementById("btnMarkCompleted").disabled).toBe(true);
   });
 
   it("lets approved workers pick territories, zoom in, and sync polygon clicks", async () => {
@@ -504,7 +693,6 @@ describe("campaign view", () => {
     await flushAll();
 
     expect(document.getElementById("selectedTerritoryMeta").textContent).toMatch(/Terr\. 1/i);
-    expect(leaflet.maps[0].fitBounds).toHaveBeenCalled();
 
     const secondPolygon = leaflet.polygons[1];
     secondPolygon.trigger("click");
@@ -543,5 +731,112 @@ describe("campaign view", () => {
     expect(document.getElementById("territoryPicker").value).toBe("");
     expect(document.getElementById("selectedTerritoryMeta").textContent).toMatch(/Select a territory/i);
     expect(document.getElementById("mapLegend").textContent).toMatch(/1\/2 completed/i);
+  });
+
+  it("lets approved workers unmark their own completed territories", async () => {
+    activeEnv = await bootstrap({
+      signedIn: true,
+      approved: true,
+      supabaseOptions: {
+        territories: [
+          {
+            territory_id: "t-1",
+            territory_no: "1",
+            locality: "Alpha",
+            polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
+            label_anchor: { lat: 40.705, lng: -74.005 },
+            completed: true,
+            completed_by: "Worker Alex",
+            completed_by_user_id: "user-1",
+            completed_by_email: "worker@example.com",
+            completed_by_avatar_url: "https://example.com/avatar.png",
+            completed_at: "2026-03-06T12:30:00Z"
+          },
+          {
+            territory_id: "t-2",
+            territory_no: "2",
+            locality: "Beta",
+            polygon: [[40.72, -74.03], [40.72, -74.02], [40.73, -74.02], [40.73, -74.03]],
+            label_anchor: { lat: 40.725, lng: -74.025 },
+            completed: false,
+            completed_by: "",
+            completed_by_user_id: "",
+            completed_by_email: "",
+            completed_by_avatar_url: "",
+            completed_at: ""
+          }
+        ]
+      }
+    });
+    const { document, supabaseMock } = activeEnv;
+    const picker = document.getElementById("territoryPicker");
+
+    picker.value = "t-1";
+    picker.dispatchEvent(new activeEnv.window.Event("change", { bubbles: true }));
+    await flushAll();
+
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Unmark Completed");
+
+    document.getElementById("btnMarkCompleted").click();
+    await flushAll();
+
+    expect(supabaseMock.client.rpc.mock.calls.find(([name, params]) => name === "campaign_set_completion" && params.p_territory_id === "t-1")?.[1]).toMatchObject({
+      p_public_code: "SPRING01",
+      p_territory_id: "t-1",
+      p_completed: false
+    });
+    expect(document.getElementById("territoryPicker").value).toBe("");
+    expect(document.getElementById("mapLegend").textContent).toMatch(/0\/2 completed/i);
+  });
+
+  it("locks territories completed by another live worker", async () => {
+    activeEnv = await bootstrap({
+      signedIn: true,
+      approved: true,
+      supabaseOptions: {
+        territories: [
+          {
+            territory_id: "t-1",
+            territory_no: "1",
+            locality: "Alpha",
+            polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
+            label_anchor: { lat: 40.705, lng: -74.005 },
+            completed: true,
+            completed_by: "Worker Blake",
+            completed_by_user_id: "user-2",
+            completed_by_email: "blake@example.com",
+            completed_by_avatar_url: "https://example.com/blake.png",
+            completed_at: "2026-03-06T12:30:00Z"
+          },
+          {
+            territory_id: "t-2",
+            territory_no: "2",
+            locality: "Beta",
+            polygon: [[40.72, -74.03], [40.72, -74.02], [40.73, -74.02], [40.73, -74.03]],
+            label_anchor: { lat: 40.725, lng: -74.025 },
+            completed: false,
+            completed_by: "",
+            completed_by_user_id: "",
+            completed_by_email: "",
+            completed_by_avatar_url: "",
+            completed_at: ""
+          }
+        ]
+      }
+    });
+    const { document, supabaseMock } = activeEnv;
+    const picker = document.getElementById("territoryPicker");
+
+    picker.value = "t-1";
+    picker.dispatchEvent(new activeEnv.window.Event("change", { bubbles: true }));
+    await flushAll();
+
+    expect(document.getElementById("btnMarkCompleted").textContent).toBe("Completed by Worker Blake");
+    expect(document.getElementById("btnMarkCompleted").disabled).toBe(true);
+
+    document.getElementById("btnMarkCompleted").click();
+    await flushAll();
+
+    expect(supabaseMock.client.rpc.mock.calls.some(([name, params]) => name === "campaign_set_completion" && params.p_territory_id === "t-1" && params.p_completed === false)).toBe(false);
   });
 });

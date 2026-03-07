@@ -56,10 +56,6 @@ function makeDomTemplate() {
     <button id="btnSnap" data-tools-focusable="true"></button>
   </div>
   </div>
-  <div id="selectionDataTools">
-    <div id="datasetInfo"></div>
-    <div id="datasetProgress" hidden><div id="datasetProgressLabel"></div><progress id="datasetProgressBar"></progress></div>
-  </div>
   <div id="selectionActions"><button id="btnFetch"><span class="icon"></span><span class="btn-label">Refresh Selected</span></button></div>
   <div id="status">Ready.</div>
   <div id="territoryAssignmentNotice" hidden></div>
@@ -496,6 +492,29 @@ function bootstrap({
   const XLSX = createXlsxMock();
   const defaultFetch = vi.fn(async (url) => {
     const urlText = String(url || "");
+    if (/overpass-api\.de\/api\/interpreter/i.test(urlText) || /\/api\/interpreter$/i.test(urlText)) {
+      return {
+        ok: true,
+        json: async () => ({
+          elements: [
+            {
+              type: "node",
+              id: 101,
+              lat: 40.72,
+              lon: -74.01,
+              tags: {
+                "addr:housenumber": "10",
+                "addr:street": "Main St",
+                "addr:postcode": "11101",
+                "addr:city": "Queens",
+                building: "house"
+              }
+            }
+          ]
+        }),
+        text: async () => ""
+      };
+    }
     if (/\/api\/local-data\/state\/status\?/i.test(urlText)) {
       return {
         ok: true,
@@ -624,6 +643,11 @@ function readDb(env) {
   return JSON.parse(env.storage.get(STORAGE_KEYS.db) || "[]");
 }
 
+function readFetchBody(call) {
+  const [, options] = Array.isArray(call) ? call : [];
+  return String(options && options.body ? options.body : "");
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -641,7 +665,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Territory Management local data API mode", () => {
+describe("Territory Management manager fetch mode", () => {
   it("keeps manual install/update/import controls out of the source UI", () => {
     expect(APP_HTML).not.toMatch(/id="btnInstallStateData"/i);
     expect(APP_HTML).not.toMatch(/id="btnUpdateAddressDb"/i);
@@ -664,106 +688,63 @@ describe("Territory Management local data API mode", () => {
     expect(dom.window.document.querySelector("#stateSelector")).toBeNull();
   });
 
-  it("uses Local Data API paths and removes Overpass paths", () => {
+  it("renders one Map View heading without a duplicated inner label", () => {
+    const dom = new JSDOM(APP_HTML);
+    const menu = dom.window.document.querySelector("#menuTerritoryTools");
+    const mapViewSection = Array.from(menu?.querySelectorAll(".tools-section") || [])
+      .filter((el) => String(el.textContent || "").trim() === "Map View");
+    const duplicateLabel = Array.from(menu?.querySelectorAll(".tools-control-label") || [])
+      .filter((el) => String(el.textContent || "").trim() === "Map View");
+    expect(mapViewSection).toHaveLength(1);
+    expect(duplicateLabel).toHaveLength(0);
+  });
+
+  it("includes Overpass fetch support while keeping advanced local-data API paths", () => {
     expect(APP_SCRIPT).toMatch(/api\/local-data\/state\/status/i);
-    expect(APP_SCRIPT).toMatch(/api\/local-data\/addresses\/search/i);
+    expect(APP_SCRIPT).toMatch(/api\/local-data\/territories\/align\/preview/i);
+    expect(APP_SCRIPT).toMatch(/api\/local-data\/territories\/align\/apply/i);
     expect(APP_SCRIPT).not.toMatch(/api\/local-data\/enrichment/i);
-    expect(APP_SCRIPT).not.toMatch(/overpass/i);
+    expect(APP_SCRIPT).toMatch(/overpass-api\.de\/api\/interpreter/i);
+    expect(APP_SCRIPT).toMatch(/TERRITORY_OVERPASS_API_URL/);
     expect(APP_SCRIPT).not.toMatch(/zippopotam\.us/i);
   });
 
-  it("exposes local data api data source mode", () => {
+  it("exposes overpass browser data source mode", () => {
     const env = bootstrap();
-    expect(env.window.TerritoryApp.modules.dataset.getDataSourceMode()).toBe("local-open-data-api");
+    expect(env.window.TerritoryApp.modules.dataset.getDataSourceMode()).toBe("overpass-browser");
   });
 
-  it("keeps dataset info text concise without release or unit-sync details", async () => {
-    const env = bootstrap({
-      datasetMeta: {
-        NY: {
-          state: "NY",
-          release: "2026-01-21.0",
-          count: 123,
-          strictResidentialReady: true,
-          datasetsInstalled: { addresses: true, buildings: true }
-        }
-      }
-    });
-    await waitFor(() => String(env.document.getElementById("datasetInfo")?.textContent || "").length > 0);
-    const text = String(env.document.getElementById("datasetInfo")?.textContent || "");
-    expect(text.toLowerCase()).not.toContain("release");
-    expect(text.toLowerCase()).not.toContain("unit sync");
+  it("removes Address Data and dataset-state chrome from the manager selection panel", () => {
+    const dom = new JSDOM(APP_HTML);
+    const selectionCard = dom.window.document.querySelector("#selectionCard");
+    expect(String(selectionCard?.textContent || "")).not.toMatch(/Address Data:\s*NY/i);
+    expect(selectionCard?.querySelector("#datasetInfo")).toBeNull();
+    expect(selectionCard?.querySelector("#datasetProgress")).toBeNull();
+    expect(selectionCard?.querySelector("#stateSelector")).toBeNull();
   });
 
-  it("auto-attempts state readiness on startup", async () => {
-    const fetchImpl = vi.fn(async (url) => {
+  it("auto-refreshes the selected territory on startup through Overpass when data is stale", async () => {
+    const fetchImpl = vi.fn(async (url, options) => {
       const urlText = String(url || "");
-      if (/\/api\/local-data\/state\/status\?/i.test(urlText)) {
+      if (/overpass-api\.de\/api\/interpreter/i.test(urlText)) {
         return {
           ok: true,
           json: async () => ({
-            ok: true,
-            state: "NY",
-            release: "2026-01-21.0",
-            phase: "ready",
-            progress: { current: 1, total: 1, pct: 100 },
-            datasetsInstalled: { addresses: true, buildings: true },
-            datasetCounts: { addresses: 2, buildings: 2 },
-            strictResidentialReady: true,
-            error: ""
-          }),
-          text: async () => ""
-        };
-      }
-      return { ok: true, json: async () => ({ ok: true }), text: async () => "" };
-    });
-    bootstrap({ fetchImpl });
-    const called = await waitFor(() => fetchImpl.mock.calls.some(([url]) => /\/api\/local-data\/state\/status\?/i.test(String(url || ""))));
-    expect(called).toBe(true);
-  });
-
-  it("auto-refreshes the selected territory on startup when data is stale", async () => {
-    const fetchImpl = vi.fn(async (url) => {
-      const urlText = String(url || "");
-      if (/\/api\/local-data\/state\/status\?/i.test(urlText)) {
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            state: "NY",
-            release: "2026-01-21.0",
-            phase: "ready",
-            progress: { current: 1, total: 1, pct: 100 },
-            datasetsInstalled: { addresses: true, buildings: true },
-            datasetCounts: { addresses: 2, buildings: 2 },
-            strictResidentialReady: true,
-            error: ""
-          }),
-          text: async () => ""
-        };
-      }
-      if (/\/api\/local-data\/addresses\/search$/i.test(urlText)) {
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            count: 1,
-            rows: [
+            elements: [
               {
+                type: "node",
                 id: "addr-1",
-                house_number: "10",
-                street: "Main St",
-                unit: "",
-                city: "Queens",
-                region: "NY",
-                postcode: "11101",
-                full_address: "10 Main St, Queens, NY 11101",
                 lat: 40.72,
-                lng: -74.01
+                lon: -74.01,
+                tags: {
+                  "addr:housenumber": "10",
+                  "addr:street": "Main St",
+                  "addr:postcode": "11101",
+                  "addr:city": "Queens",
+                  building: "house"
+                }
               }
-            ],
-            release: "2026-01-21.0",
-            source: "local-open-data-cache"
+            ]
           }),
           text: async () => ""
         };
@@ -785,65 +766,24 @@ describe("Territory Management local data API mode", () => {
         }
       ]
     });
-    const called = await waitFor(() => fetchImpl.mock.calls.some(([url]) => /\/api\/local-data\/addresses\/search$/i.test(String(url || ""))), 1800);
+    const called = await waitFor(() => fetchImpl.mock.calls.some(([url]) => /overpass-api\.de\/api\/interpreter/i.test(String(url || ""))), 1800);
     expect(called).toBe(true);
     const updated = readDb(env);
     expect(updated[0].addresses.length).toBeGreaterThan(0);
     expect(typeof updated[0].lastFetchedAt).toBe("string");
+    const overpassCall = fetchImpl.mock.calls.find(([url]) => /overpass-api\.de\/api\/interpreter/i.test(String(url || "")));
+    expect(decodeURIComponent(readFetchBody(overpassCall))).toContain("out center tags qt;");
   });
 
-  it("keeps the dataset state fixed to NY without rendering a selector", async () => {
-    const env = bootstrap();
-    await waitFor(() => String(env.document.getElementById("datasetInfo")?.textContent || "").length > 0);
-    expect(env.document.getElementById("stateSelector")).toBeNull();
-    expect(String(env.document.getElementById("datasetInfo")?.textContent || "")).toMatch(/address data:\s*ny/i);
-  });
-
-  it("shows the read-only NY dataset note instead of a multi-state picker", async () => {
-    const env = bootstrap();
-    const updated = await waitFor(() => /address data:\s*ny/i.test(String(env.document.getElementById("datasetInfo")?.textContent || "")));
-    expect(updated).toBe(true);
-  });
-
-  it("fetches addresses through local data api path", async () => {
+  it("builds an Overpass polygon query when refreshing the selected territory", async () => {
+    const freshFetchedAt = new Date().toISOString();
     const fetchImpl = vi.fn(async (url) => {
       const urlText = String(url || "");
-      if (/\/api\/local-data\/state\/status\?/i.test(urlText)) {
+      if (/overpass-api\.de\/api\/interpreter/i.test(urlText)) {
         return {
           ok: true,
           json: async () => ({
-            ok: true,
-            state: "NY",
-            release: "2026-01-21.0",
-            phase: "ready",
-            progress: { current: 1, total: 1, pct: 100 },
-            datasetsInstalled: { addresses: true, buildings: true },
-            datasetCounts: { addresses: 2, buildings: 2 },
-            strictResidentialReady: true,
-            error: ""
-          }),
-          text: async () => ""
-        };
-      }
-      if (/\/api\/local-data\/addresses\/search$/i.test(urlText)) {
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            count: 1,
-            rows: [{
-              id: "a1",
-              house_number: "11",
-              street: "Main St",
-              city: "Queens",
-              region: "NY",
-              postcode: "11101",
-              full_address: "11 Main St, Queens, NY 11101",
-              lat: 40.72,
-              lng: -74.01
-            }],
-            release: "2026-01-21.0",
-            source: "local-open-data-cache"
+            elements: []
           }),
           text: async () => ""
         };
@@ -858,20 +798,226 @@ describe("Territory Management local data API mode", () => {
           territoryNo: "1",
           locality: "A",
           polygon: [[40.71, -74.0], [40.72, -74.01], [40.73, -74.02]],
-          addresses: [],
+          addresses: [{ full: "Existing Address, Queens, NY 11101", zip: "11101" }],
           city: "Queens",
           state: "NY",
-          zip: ""
+          zip: "11101",
+          lastFetchedAt: freshFetchedAt
         }
       ]
     });
     selectTerritory(env, "t-1");
     env.document.getElementById("btnFetch").click();
-    await waitFor(() => fetchImpl.mock.calls.some(([url]) => /\/api\/local-data\/addresses\/search$/i.test(String(url || ""))));
-    const updatedDb = readDb(env);
-    expect(updatedDb[0].addresses.length).toBeGreaterThan(0);
-    expect(fetchImpl.mock.calls.some(([url]) => /\/api\/local-data\/addresses\/search$/i.test(String(url || "")))).toBe(true);
-    expect(fetchImpl.mock.calls.some(([url]) => /overpass/i.test(String(url || "")))).toBe(false);
+    await waitFor(() => fetchImpl.mock.calls.some(([url]) => /overpass-api\.de\/api\/interpreter/i.test(String(url || ""))));
+    const overpassCall = fetchImpl.mock.calls.find(([url]) => /overpass-api\.de\/api\/interpreter/i.test(String(url || "")));
+    expect(overpassCall).toBeTruthy();
+    const decodedBody = decodeURIComponent(readFetchBody(overpassCall));
+    expect(decodedBody).toContain('node(poly:"40.7100000 -74.0000000');
+    expect(decodedBody).toContain("way(poly:");
+    expect(decodedBody).toContain("relation(poly:");
+    expect(decodedBody).toContain("out center tags qt;");
+  });
+
+  it("allows overriding the Overpass endpoint from window.TERRITORY_OVERPASS_API_URL", async () => {
+    const freshFetchedAt = new Date().toISOString();
+    const fetchImpl = vi.fn(async (url) => {
+      const urlText = String(url || "");
+      if (/overpass\.example\.test\/api\/interpreter/i.test(urlText)) {
+        return {
+          ok: true,
+          json: async () => ({ elements: [] }),
+          text: async () => ""
+        };
+      }
+      return { ok: true, json: async () => ({ ok: true }), text: async () => "" };
+    });
+    const env = bootstrap({
+      fetchImpl,
+      initialDb: [
+        {
+          id: "t-1",
+          territoryNo: "1",
+          locality: "A",
+          polygon: [[40.71, -74.0], [40.72, -74.01], [40.73, -74.02]],
+          addresses: [{ full: "Existing Address, Queens, NY 11101", zip: "11101" }],
+          city: "Queens",
+          state: "NY",
+          zip: "11101",
+          lastFetchedAt: freshFetchedAt
+        }
+      ]
+    });
+    env.window.TERRITORY_OVERPASS_API_URL = "https://overpass.example.test/api/interpreter";
+    selectTerritory(env, "t-1");
+    env.document.getElementById("btnFetch").click();
+    await waitFor(() => fetchImpl.mock.calls.some(([url]) => /overpass\.example\.test\/api\/interpreter/i.test(String(url || ""))));
+    expect(fetchImpl.mock.calls.some(([url]) => /overpass\.example\.test\/api\/interpreter/i.test(String(url || "")))).toBe(true);
+  });
+
+  it("filters refresh results to in-boundary residential addresses and excludes commercial rows", async () => {
+    const freshFetchedAt = new Date().toISOString();
+    const fetchImpl = vi.fn(async (url) => {
+      const urlText = String(url || "");
+      if (/overpass-api\.de\/api\/interpreter/i.test(urlText)) {
+        return {
+          ok: true,
+          json: async () => ({
+            elements: [
+              {
+                type: "node",
+                id: 1,
+                lat: 40.72,
+                lon: -74.01,
+                tags: {
+                  "addr:housenumber": "10",
+                  "addr:street": "Main St",
+                  "addr:postcode": "11101",
+                  "addr:city": "Queens",
+                  building: "house"
+                }
+              },
+              {
+                type: "node",
+                id: 2,
+                lat: 40.76,
+                lon: -74.04,
+                tags: {
+                  "addr:housenumber": "99",
+                  "addr:street": "Outside Ave",
+                  "addr:postcode": "11101",
+                  "addr:city": "Queens",
+                  building: "house"
+                }
+              },
+              {
+                type: "node",
+                id: 3,
+                lat: 40.721,
+                lon: -74.011,
+                tags: {
+                  "addr:housenumber": "22",
+                  "addr:street": "Shop Rd",
+                  "addr:postcode": "11101",
+                  "addr:city": "Queens",
+                  shop: "supermarket"
+                }
+              },
+              {
+                type: "node",
+                id: 4,
+                lat: 40.722,
+                lon: -74.012,
+                tags: {
+                  "addr:housenumber": "40",
+                  "addr:street": "Mixed Use Ln",
+                  "addr:postcode": "11101",
+                  "addr:city": "Queens",
+                  shop: "bakery",
+                  building: "apartments"
+                }
+              }
+            ]
+          }),
+          text: async () => ""
+        };
+      }
+      return { ok: true, json: async () => ({ ok: true }), text: async () => "" };
+    });
+    const env = bootstrap({
+      fetchImpl,
+      initialDb: [
+        {
+          id: "t-1",
+          territoryNo: "1",
+          locality: "A",
+          polygon: [[40.71, -74.0], [40.72, -74.02], [40.73, -74.01]],
+          addresses: [{ full: "Existing Address, Queens, NY 11101", zip: "11101" }],
+          city: "Queens",
+          state: "NY",
+          zip: "11101",
+          lastFetchedAt: freshFetchedAt
+        }
+      ]
+    });
+    selectTerritory(env, "t-1");
+    env.document.getElementById("btnFetch").click();
+    await waitFor(() => readDb(env)[0].addresses.length === 2);
+    const addresses = readDb(env)[0].addresses.map((row) => row.full);
+    expect(addresses).toEqual([
+      "10 Main St, Queens, NY 11101",
+      "40 Mixed Use Ln, Queens, NY 11101"
+    ]);
+  });
+
+  it("clears stored addresses on a successful empty Overpass result", async () => {
+    const freshFetchedAt = new Date().toISOString();
+    const fetchImpl = vi.fn(async (url) => {
+      const urlText = String(url || "");
+      if (/overpass-api\.de\/api\/interpreter/i.test(urlText)) {
+        return {
+          ok: true,
+          json: async () => ({ elements: [] }),
+          text: async () => ""
+        };
+      }
+      return { ok: true, json: async () => ({ ok: true }), text: async () => "" };
+    });
+    const env = bootstrap({
+      fetchImpl,
+      initialDb: [
+        {
+          id: "t-1",
+          territoryNo: "1",
+          locality: "A",
+          polygon: [[40.71, -74.0], [40.72, -74.02], [40.73, -74.01]],
+          addresses: [{ full: "10 Main St, Queens, NY 11101", zip: "11101" }],
+          city: "Queens",
+          state: "NY",
+          zip: "11101",
+          lastFetchedAt: freshFetchedAt
+        }
+      ]
+    });
+    selectTerritory(env, "t-1");
+    env.document.getElementById("btnFetch").click();
+    await waitFor(() => /No residential addresses found inside this boundary\./i.test(String(env.document.getElementById("status")?.textContent || "")));
+    expect(readDb(env)[0].addresses).toEqual([]);
+  });
+
+  it("preserves stored addresses when the Overpass refresh fails", async () => {
+    const freshFetchedAt = new Date().toISOString();
+    const fetchImpl = vi.fn(async (url) => {
+      const urlText = String(url || "");
+      if (/overpass-api\.de\/api\/interpreter/i.test(urlText)) {
+        return {
+          ok: false,
+          status: 429,
+          json: async () => ({ remark: "rate limit" }),
+          text: async () => "rate limit"
+        };
+      }
+      return { ok: true, json: async () => ({ ok: true }), text: async () => "" };
+    });
+    const env = bootstrap({
+      fetchImpl,
+      initialDb: [
+        {
+          id: "t-1",
+          territoryNo: "1",
+          locality: "A",
+          polygon: [[40.71, -74.0], [40.72, -74.02], [40.73, -74.01]],
+          addresses: [{ full: "10 Main St, Queens, NY 11101", zip: "11101" }],
+          city: "Queens",
+          state: "NY",
+          zip: "11101",
+          lastFetchedAt: freshFetchedAt
+        }
+      ]
+    });
+    selectTerritory(env, "t-1");
+    env.document.getElementById("btnFetch").click();
+    await waitFor(() => /Address refresh failed\./i.test(String(env.document.getElementById("status")?.textContent || "")));
+    expect(readDb(env)[0].addresses).toEqual([{ full: "10 Main St, Queens, NY 11101", zip: "11101" }]);
   });
 
   it("allows file:// mode when local data api is reachable", async () => {
@@ -1190,7 +1336,7 @@ describe("Territory Management local data API mode", () => {
     expect(env.document.getElementById("mainLayout")?.classList.contains("is-campaign")).toBe(true);
     expect(env.document.getElementById("campaignCard")?.hidden).toBe(false);
     expect(env.document.getElementById("selectionInputs")?.hidden).toBe(true);
-    expect(env.document.getElementById("selectionDataTools")?.hidden).toBe(true);
+    expect(env.document.getElementById("selectionDataTools")).toBeNull();
     expect(env.document.getElementById("selectionActions")?.hidden).toBe(true);
     expect(env.document.getElementById("status")?.hidden).toBe(true);
     expect(env.document.getElementById("addressCard")?.hidden).toBe(true);
@@ -1249,9 +1395,55 @@ describe("Territory Management local data API mode", () => {
     expect(openMock).toHaveBeenCalledWith("http://localhost/campaign.html?mode=local&campaign=SPRING42");
     const stored = JSON.parse(env.storage.get(STORAGE_KEYS.localCampaigns) || "{}");
     expect(stored.SPRING42.campaign.name).toBe("Spring 42");
+    expect(stored.SPRING42.viewer.userId).toMatch(/^local:SPRING42:/);
     expect(Array.isArray(stored.SPRING42.territories)).toBe(true);
     expect(stored.SPRING42.territories).toHaveLength(1);
     expect(modules.localCampaign.readLocalCampaignSnapshot("SPRING42")?.campaign.mode).toBe("local");
+  });
+
+  it("preserves the local campaign viewer when the master app republishes the snapshot", async () => {
+    const env = bootstrap({
+      initialDb: [
+        {
+          id: "t-1",
+          territoryNo: "1",
+          locality: "Alpha",
+          polygon: [[40.70, -74.01], [40.70, -74.00], [40.71, -74.00], [40.71, -74.01]],
+          labelAnchor: { lat: 40.705, lng: -74.005 },
+          addresses: []
+        }
+      ],
+      viewMode: "campaign"
+    });
+    const modules = env.window.TerritoryApp.modules;
+
+    await modules.localCampaign.publishLocalCampaignSnapshot({
+      name: "Spring 42",
+      publicCode: "SPRING42"
+    });
+
+    const firstSnapshot = modules.localCampaign.readLocalCampaignSnapshot("SPRING42");
+    await modules.localCampaign.writeLocalCampaignSnapshot({
+      ...firstSnapshot,
+      viewer: {
+        ...firstSnapshot.viewer,
+        displayName: "Jordan Lee"
+      }
+    }, {
+      render: false,
+      announce: false
+    });
+
+    const storedBeforeRepublish = modules.localCampaign.readLocalCampaignSnapshot("SPRING42");
+
+    await modules.localCampaign.publishLocalCampaignSnapshot({
+      name: "Spring 42",
+      publicCode: "SPRING42"
+    });
+
+    const storedAfterRepublish = modules.localCampaign.readLocalCampaignSnapshot("SPRING42");
+    expect(storedAfterRepublish?.viewer.displayName).toBe("Jordan Lee");
+    expect(storedAfterRepublish?.viewer.userId).toBe(storedBeforeRepublish?.viewer.userId);
   });
 
   it("updates local campaign completion state without Supabase", async () => {
@@ -1282,11 +1474,25 @@ describe("Territory Management local data API mode", () => {
       name: "Spring 42",
       publicCode: "SPRING42"
     });
+    const initialSnapshot = modules.localCampaign.readLocalCampaignSnapshot("SPRING42");
+    await modules.localCampaign.writeLocalCampaignSnapshot({
+      ...initialSnapshot,
+      viewer: {
+        ...initialSnapshot.viewer,
+        displayName: "Jordan Lee"
+      }
+    }, {
+      render: false,
+      announce: false
+    });
     await modules.localCampaign.setLocalCampaignTerritoryCompletion("t-1", true, { render: false });
 
+    const storedSnapshot = modules.localCampaign.readLocalCampaignSnapshot("SPRING42");
     expect(env.document.getElementById("kpiCampaignCompleted")?.textContent).toBe("1");
     expect(env.document.getElementById("kpiCampaignRemaining")?.textContent).toBe("1");
-    expect(env.document.getElementById("campaignSelectedStatus")?.textContent).toMatch(/Completed by Local Worker/i);
+    expect(storedSnapshot?.territories.find((territory) => territory.territoryId === "t-1")?.completedBy).toBe("Jordan Lee");
+    expect(storedSnapshot?.territories.find((territory) => territory.territoryId === "t-1")?.completedByUserId).toBe(storedSnapshot?.viewer.userId);
+    expect(env.document.getElementById("campaignSelectedStatus")?.textContent).toMatch(/Completed by Jordan Lee/i);
   });
 
 

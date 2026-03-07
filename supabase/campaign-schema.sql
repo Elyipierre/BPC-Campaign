@@ -6,12 +6,14 @@ create table if not exists public.campaigns (
   public_code text not null unique,
   worker_pin_hash text not null default '',
   created_by text not null default '',
+  created_by_user_id uuid,
   approved_emails jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
 
 alter table public.campaigns
+  add column if not exists created_by_user_id uuid,
   add column if not exists approved_emails jsonb not null default '[]'::jsonb;
 
 create table if not exists public.campaign_territories (
@@ -181,7 +183,7 @@ language sql
 stable
 as $$
   with selected_campaign as (
-    select id, name, public_code, created_by, approved_emails, created_at, updated_at
+    select id, name, public_code, created_by, created_by_user_id, approved_emails, created_at, updated_at
     from public.campaigns
     where id = p_campaign_id
   ),
@@ -211,6 +213,7 @@ as $$
         'name', name,
         'public_code', public_code,
         'created_by', created_by,
+        'created_by_user_id', created_by_user_id,
         'approved_emails', approved_emails,
         'created_at', created_at,
         'updated_at', updated_at
@@ -323,6 +326,7 @@ begin
     update public.campaigns
     set name = v_name,
         created_by = trim(coalesce(p_created_by, '')),
+        created_by_user_id = coalesce(auth.uid(), created_by_user_id),
         approved_emails = v_approved_emails,
         updated_at = timezone('utc', now())
     where id = v_campaign.id
@@ -334,6 +338,7 @@ begin
       public_code,
       worker_pin_hash,
       created_by,
+      created_by_user_id,
       approved_emails
     )
     values (
@@ -341,6 +346,7 @@ begin
       v_code,
       '',
       trim(coalesce(p_created_by, '')),
+      auth.uid(),
       v_approved_emails
     )
     returning * into v_campaign;
@@ -402,6 +408,7 @@ set search_path = public
 as $$
 declare
   v_campaign public.campaigns%rowtype;
+  v_territory public.campaign_territories%rowtype;
   v_territory_id text := trim(coalesce(p_territory_id, ''));
   v_user_email text := public.campaign_current_user_email();
   v_display_name text := public.campaign_current_user_display_name();
@@ -434,6 +441,27 @@ begin
     end if;
   end if;
 
+  select *
+  into v_territory
+  from public.campaign_territories
+  where campaign_id = v_campaign.id
+    and territory_id = v_territory_id
+  for update;
+
+  if not found then
+    raise exception 'Territory % is not part of this campaign.', v_territory_id;
+  end if;
+
+  if not coalesce(p_completed, false) and coalesce(v_territory.completed, false) then
+    if not (
+      (v_user_id is not null and v_territory.completed_by_user_id is not null and v_user_id = v_territory.completed_by_user_id)
+      or (v_user_id is not null and v_territory.completed_by_user_id is null and v_user_email <> '' and lower(v_user_email) = lower(coalesce(v_territory.completed_by_email, '')))
+      or (v_user_id is not null and v_campaign.created_by_user_id is not null and v_user_id = v_campaign.created_by_user_id)
+    ) then
+      raise exception 'Only the worker who completed this territory or the campaign owner can reopen it.';
+    end if;
+  end if;
+
   update public.campaign_territories
   set completed = coalesce(p_completed, false),
       completed_by = case
@@ -459,10 +487,6 @@ begin
       updated_at = timezone('utc', now())
   where campaign_id = v_campaign.id
     and territory_id = v_territory_id;
-
-  if not found then
-    raise exception 'Territory % is not part of this campaign.', v_territory_id;
-  end if;
 
   update public.campaigns
   set updated_at = timezone('utc', now())

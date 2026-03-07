@@ -8,6 +8,7 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const ENTRY_FILE = "Territory Management.html";
 const PORT = Number(process.env.PORT || 4181);
 const HOST = "127.0.0.1";
+const STORAGE_KEY_DB = "terr_final_db";
 
 function resolveRequestPath(urlPath) {
   let decoded = "/";
@@ -47,6 +48,22 @@ function assertCondition(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function buildSeededDb() {
+  return [
+    {
+      id: "t-1",
+      territoryNo: "1",
+      locality: "Alpha",
+      polygon: [[40.71, -74.0], [40.72, -74.02], [40.73, -74.01]],
+      labelAnchor: { lat: 40.72, lng: -74.01 },
+      addresses: [],
+      city: "Queens",
+      state: "NY",
+      zip: "11101"
+    }
+  ];
+}
+
 async function main() {
   const server = createStaticServer();
   await new Promise((resolve, reject) => {
@@ -59,6 +76,14 @@ async function main() {
   const page = await context.newPage();
   const requests = [];
   page.on("request", req => requests.push(req.url()));
+  await page.addInitScript(({ storageKey, dbJson }) => {
+    try {
+      localStorage.setItem(storageKey, dbJson);
+    } catch (_) { }
+  }, {
+    storageKey: STORAGE_KEY_DB,
+    dbJson: JSON.stringify(buildSeededDb())
+  });
   await page.route("http://127.0.0.1:8787/**", async route => {
     const requestUrl = route.request().url();
     let payload = { ok: true };
@@ -113,11 +138,34 @@ async function main() {
       body: JSON.stringify(payload)
     });
   });
+  await page.route("https://overpass-api.de/api/interpreter*", async route => {
+    await route.fulfill({
+      status: 200,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        elements: [
+          {
+            type: "node",
+            id: 1,
+            lat: 40.72,
+            lon: -74.01,
+            tags: {
+              "addr:housenumber": "10",
+              "addr:street": "Main St",
+              "addr:postcode": "11101",
+              "addr:city": "Queens",
+              building: "house"
+            }
+          }
+        ]
+      })
+    });
+  });
 
   try {
     const localhostUrl = `http://${HOST}:${PORT}/${encodeURIComponent(ENTRY_FILE).replace(/%2F/g, "/")}`;
     await page.goto(localhostUrl, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1800);
 
     const title = await page.title();
     const hasInstall = (await page.$("#btnInstallStateData")) !== null;
@@ -127,6 +175,13 @@ async function main() {
     const hasEnrichment = (await page.$("#btnDataEnrichment")) !== null;
     const hasOperations = (await page.$("#opsActiveJob")) !== null;
     const hasResultsPane = (await page.$(".results-pane")) !== null;
+    const hasDatasetInfo = (await page.$("#datasetInfo")) !== null;
+    const hasDatasetProgress = (await page.$("#datasetProgress")) !== null;
+    const hasStateSelector = (await page.$("#stateSelector")) !== null;
+    const mapViewHeadingCount = await page.locator("#menuTerritoryTools .tools-section").evaluateAll((nodes) => nodes.filter((node) => String(node.textContent || "").trim() === "Map View").length);
+    const duplicateMapViewLabelCount = await page.locator("#menuTerritoryTools .tools-control-label").evaluateAll((nodes) => nodes.filter((node) => String(node.textContent || "").trim() === "Map View").length);
+    const selectionCardText = await page.locator("#selectionCard").innerText();
+    const refreshLabel = await page.locator("#btnFetch .btn-label").innerText();
 
     assertCondition(title === "Territory Management PRO", `Unexpected title: ${title}`);
     assertCondition(!hasInstall && !hasUpdate && !hasImport, "Manual install/update/import controls should not exist.");
@@ -134,17 +189,48 @@ async function main() {
     assertCondition(!hasEnrichment, "Data enrichment action should not exist.");
     assertCondition(!hasOperations, "Operations panel should not exist.");
     assertCondition(!hasResultsPane, "Right-side results pane should not exist.");
-    assertCondition(requests.some(url => /api\/local-data\/state\/status/i.test(url)), "Expected local-data state status request was not made.");
-    assertCondition(!requests.some(url => /overpass/i.test(url)), "Unexpected Overpass request detected.");
+    assertCondition(!hasDatasetInfo && !hasDatasetProgress && !hasStateSelector, "Removed dataset/state chrome still exists.");
+    assertCondition(!/Address Data:\s*NY/i.test(selectionCardText), "Legacy Address Data state chrome is still visible.");
+    assertCondition(mapViewHeadingCount === 1, `Expected one Map View heading, found ${mapViewHeadingCount}.`);
+    assertCondition(duplicateMapViewLabelCount === 0, `Unexpected duplicate Map View label count: ${duplicateMapViewLabelCount}.`);
+    assertCondition(refreshLabel === "Refresh Selected", `Unexpected refresh button label: ${refreshLabel}`);
+
+    await page.selectOption("#territorySelector", "t-1");
+    await page.click("#btnFetch");
+    await page.waitForFunction(() => /residential addresses inside this boundary/i.test(String(document.querySelector("#status")?.textContent || "")));
+
+    const localhostDb = await page.evaluate((storageKey) => {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "[]");
+      } catch (_) {
+        return [];
+      }
+    }, STORAGE_KEY_DB);
+    assertCondition(Array.isArray(localhostDb) && localhostDb[0] && Array.isArray(localhostDb[0].addresses) && localhostDb[0].addresses.length === 1, "Expected one refreshed address in localhost mode.");
+    assertCondition(/10 Main St/i.test(String(localhostDb[0].addresses[0] && localhostDb[0].addresses[0].full || "")), "Expected normalized Overpass address in localhost mode.");
+    assertCondition(requests.some(url => /overpass-api\.de\/api\/interpreter/i.test(url)), "Expected Overpass refresh request was not made.");
+    assertCondition(!requests.some(url => /api\/local-data\/addresses\/search/i.test(url)), "Unexpected legacy local-data address search request detected.");
 
     const fileUrl = `file:///${path.join(ROOT_DIR, ENTRY_FILE).replace(/\\/g, "/")}`;
+    requests.length = 0;
     await page.goto(fileUrl, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1200);
-    const infoText = await page.locator("#datasetInfo").innerText();
+    await page.waitForTimeout(1800);
+    await page.selectOption("#territorySelector", "t-1");
+    await page.click("#btnFetch");
+    await page.waitForFunction(() => /residential addresses inside this boundary/i.test(String(document.querySelector("#status")?.textContent || "")));
+    const fileDb = await page.evaluate((storageKey) => {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "[]");
+      } catch (_) {
+        return [];
+      }
+    }, STORAGE_KEY_DB);
     assertCondition(
-      /\bready\b|state package not yet published|localhost|start-territory-app\.cmd|npm run start:local/i.test(infoText),
-      `Expected concise ready/state guidance in file mode, got: ${infoText}`
+      Array.isArray(fileDb) && fileDb[0] && Array.isArray(fileDb[0].addresses) && fileDb[0].addresses.length === 1,
+      "Expected one refreshed address in file mode."
     );
+    assertCondition(requests.some(url => /overpass-api\.de\/api\/interpreter/i.test(url)), "Expected Overpass refresh request in file mode was not made.");
+    assertCondition(!requests.some(url => /api\/local-data\/addresses\/search/i.test(url)), "Unexpected legacy local-data address search request detected in file mode.");
 
     console.log("[playwright-local-smoke] PASS");
   } finally {

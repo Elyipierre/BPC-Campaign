@@ -82,7 +82,7 @@ Workers on approved Google accounts can then:
 - open the public campaign page
 - sign in with Google
 - select a territory
-- mark it complete
+- mark it complete or unmark their own completed territory
 - sync progress back to the shared campaign
 
 ### 6. Verify production
@@ -98,6 +98,7 @@ Use this checklist:
 
 ### Notes
 
-- Same-computer local campaigns do not need Supabase.
+- Same-computer local campaigns do not need Supabase, but each browser now stores its own local worker name per campaign.
 - Live campaigns do need Supabase because GitHub Pages is static hosting only.
+- Shared live reopen actions are owner-restricted in the campaign page. The master app keeps its reopen override only when the campaign was published from a signed-in Supabase session that set the campaign owner.
 - Never put a service-role key in the repo or browser config.

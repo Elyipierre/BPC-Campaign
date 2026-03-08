@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPC Campaign | Active Campaign Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+            background-image: radial-gradient(at 100% 0%, rgba(20, 184, 166, 0.1) 0px, transparent 50%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border-color: rgba(20, 184, 166, 0.3);
+        }
+        .progress-ring {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="glass-card sticky top-0 z-50 px-8 py-4 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center space-x-4">
+            <img src="assets/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">Active Campaign</h1>
+                <p class="text-[10px] text-teal-400 font-black uppercase tracking-widest">Special Distribution 2026</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-8">
+            <a href="Territory Management.html" class="text-xs font-bold text-slate-400 hover:text-white transition-colors">Standard View</a>
+            <button onclick="window.appConfig.signOut()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                Sign Out
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-2">
+                <h2 class="text-5xl font-black mb-4">Memorial 2026 <span class="text-teal-500">Invitations</span></h2>
+                <p class="text-slate-400 text-lg max-w-2xl">Tracking the coordinated effort to reach every household in the congregation territory with special invitations.</p>
+            </div>
+            
+            <div class="glass-card p-6 rounded-[2.5rem] flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 uppercase mb-1">Total Coverage</p>
+                    <h3 class="text-4xl font-black">64%</h3>
+                </div>
+                <div class="relative w-20 h-20">
+                    <svg class="w-full h-full">
+                        <circle class="text-white/5" stroke-width="8" stroke="currentColor" fill="transparent" r="30" cx="40" cy="40"/>
+                        <circle class="text-teal-500 progress-ring" stroke-width="8" stroke-dasharray="188.4" stroke-dashoffset="67.8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="30" cx="40" cy="40"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="glass-card p-6 rounded-3xl border-t-4 border-blue-500">
+                <p class="text-slate-500 text-[10px] font-black uppercase mb-2">Invitations Placed</p>
+                <h4 class="text-3xl font-bold">1,240</h4>
+                <div class="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 w-[70%]"></div>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-3xl border-t-4 border-purple-500">
+                <p class="text-slate-500 text-[10px] font-black uppercase mb-2">Videos Shown</p>
+                <h4 class="text-3xl font-bold">85</h4>
+            </div>
+            <div class="glass-card p-6 rounded-3xl border-t-4 border-amber-500">
+                <p class="text-slate-500 text-[10px] font-black uppercase mb-2">Return Visits</p>
+                <h4 class="text-3xl font-bold">42</h4>
+            </div>
+            <div class="glass-card p-6 rounded-3xl border-t-4 border-teal-500">
+                <p class="text-slate-500 text-[10px] font-black uppercase mb-2">Active Publishers</p>
+                <h4 class="text-3xl font-bold">18</h4>
+            </div>
+        </div>
+
+        <div class="mb-8 flex items-center justify-between">
+            <h3 class="text-2xl font-bold">Active Assignments</h3>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 bg-teal-500 text-white text-xs font-bold rounded-full">All</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-400 text-xs font-bold rounded-full hover:bg-white/10">In Progress</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-400 text-xs font-bold rounded-full hover:bg-white/10">Completed</button>
+            </div>
+        </div>
+
+        <div id="campaign-list" class="space-y-4">
+            <div class="glass-card p-4 rounded-2xl flex items-center justify-between group">
+                <div class="flex items-center space-x-6">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">12</div>
+                    <div>
+                        <h5 class="font-bold group-hover:text-teal-400 transition-colors">North Riverside Heights</h5>
+                        <p class="text-xs text-slate-500">Assigned to: <span class="text-slate-300">Bro. Pierre</span> • 2 days ago</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right mr-4">
+                        <p class="text-[10px] font-black text-slate-500 uppercase">Placements</p>
+                        <p class="text-sm font-bold">14</p>
+                    </div>
+                    <button class="p-3 bg-white/5 rounded-xl hover:bg-teal-500 transition-all group-hover:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="glass-card p-4 rounded-2xl flex items-center justify-between group">
+                <div class="flex items-center space-x-6">
+                    <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-500 font-bold">08</div>
+                    <div>
+                        <h5 class="font-bold group-hover:text-teal-400 transition-colors">Oakwood Business District</h5>
+                        <p class="text-xs text-slate-500 italic">Unassigned</p>
+                    </div>
+                </div>
+                <button class="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all">
+                    Assign Now
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="assets/app-config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Auth Guard
+            const { data: { session } } = await window.appConfig.supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Ensure Campaign Mode is visually active
+            localStorage.setItem('campaign_mode', 'true');
+            window.appConfig.toggleCampaignMode(true);
+        });
+    </script>
+</body>
+</html>

@@ -61,7 +61,7 @@
             
             <div id="admin-menu" class="hidden mt-8">
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 px-4">Management</p>
-                <div class="nav-item text-teal-400 hover:bg-teal-500/10 hover:text-teal-300">
+                <div class="nav-item text-teal-400 hover:bg-teal-500/10 hover:text-teal-300" onclick="alert('Admin Panel opening...')">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                     Admin Panel
                 </div>
@@ -94,7 +94,7 @@
             
             document.getElementById('user-welcome').innerText = `Welcome back, ${session.user.user_metadata.full_name || session.user.email}`;
             
-            // Role check (For future robust implementation)
+            // Temporary Role check - Can be expanded with a user_roles table later
             const userEmail = session.user.email.toLowerCase();
             const isAdmin = userEmail.includes('admin') || userEmail.includes('elyipierre'); 
             
@@ -122,7 +122,7 @@
                 return;
             }
 
-            // Zero State
+            // Zero State for when no territories are toggled 'on'
             if (!data || data.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-full text-center py-24 glass-panel rounded-[2rem] border-dashed border-white/10">

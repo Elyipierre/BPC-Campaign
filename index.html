@@ -9,45 +9,36 @@
     <style>
         body {
             background: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0px, transparent 50%);
             height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .glass {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body>
-    <div class="glass p-12 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl border border-white/10">
+    <div class="glass p-12 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl">
         <div class="mb-10">
-            <div class="w-28 h-28 mx-auto mb-6 overflow-hidden rounded-3xl shadow-inner bg-white/5 flex items-center justify-center p-4 border border-white/10">
+            <div class="w-28 h-28 mx-auto mb-6 rounded-3xl bg-white/5 flex items-center justify-center p-4 border border-white/10 overflow-hidden">
                 <img src="assets/logo.png" alt="BPC Logo" class="w-full h-full object-contain">
             </div>
-            <h1 class="text-4xl font-extrabold text-white tracking-tight">BPC Campaign</h1>
-            <p class="text-slate-400 mt-3 font-medium">Territory Management Pro</p>
+            <h1 class="text-4xl font-extrabold text-white">BPC Campaign</h1>
+            <p class="text-slate-400 mt-2">Territory Management Pro</p>
         </div>
 
         <button onclick="window.appConfig.signInWithGoogle()" 
-                class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-white/5">
+                class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition-all shadow-lg">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 mr-4">
             Sign in with Google
         </button>
-
-        <div class="mt-12 pt-8 border-t border-white/5">
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Secure Administrative Gateway</span>
-        </div>
     </div>
 
     <script src="assets/app-config.js"></script>
     <script>
-        // Check session: if already logged in, skip to main app
         window.onload = async () => {
             const { data: { session } } = await window.appConfig.supabase.auth.getSession();
             if (session) window.location.href = 'territory-management.html';

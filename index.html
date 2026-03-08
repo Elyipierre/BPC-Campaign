@@ -16,11 +16,11 @@
     * { box-sizing: border-box; }
 
     :root {
-      --bg: #0f172a;
-      --grid-line: rgba(148, 163, 184, 0.06);
-      --territory-stroke: rgba(153, 246, 228, 0.62);
-      --territory-fill: rgba(20, 184, 166, 0.08);
-      --territory-shadow: rgba(20, 184, 166, 0.18);
+      --grid-line: rgba(148, 163, 184, 0.045);
+      --territory-stroke: rgba(153, 246, 228, 0.17);
+      --territory-fill: rgba(20, 184, 166, 0.018);
+      --territory-shadow: rgba(20, 184, 166, 0.055);
+      --territory-highlight: rgba(186, 230, 253, 0.16);
     }
 
     html, body {
@@ -39,8 +39,8 @@
       color: white;
       font-family: 'Inter', sans-serif;
       background:
-        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.17) 0%, rgba(20, 184, 166, 0.09) 16%, rgba(15, 23, 42, 0) 42%),
-        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 46%),
+        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.14) 0%, rgba(20, 184, 166, 0.07) 16%, rgba(15, 23, 42, 0) 42%),
+        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, transparent 46%),
         linear-gradient(180deg, #071332 0%, #081536 32%, #08142f 68%, #06112a 100%);
       isolation: isolate;
     }
@@ -51,21 +51,6 @@
       100% { transform: translateY(0); }
     }
 
-    @keyframes territoryFade {
-      0%, 100% {
-        opacity: 0;
-      }
-      18% {
-        opacity: 0.08;
-      }
-      45% {
-        opacity: 0.9;
-      }
-      70% {
-        opacity: 0.16;
-      }
-    }
-
     @keyframes glowPulse {
       0%, 100% {
         opacity: 0.65;
@@ -74,6 +59,61 @@
       50% {
         opacity: 0.95;
         transform: translate(-50%, -50%) scale(1.05);
+      }
+    }
+
+    @keyframes mapDriftA {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-8deg) scale(1.02);
+      }
+      50% {
+        transform: translate3d(16px, -12px, 0) rotate(-6deg) scale(1.05);
+      }
+    }
+
+    @keyframes mapDriftB {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(10deg) scale(0.96);
+      }
+      50% {
+        transform: translate3d(-18px, 14px, 0) rotate(8deg) scale(1);
+      }
+    }
+
+    @keyframes mapDriftC {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-2deg) scale(0.9);
+      }
+      50% {
+        transform: translate3d(10px, 18px, 0) rotate(1deg) scale(0.94);
+      }
+    }
+
+    @keyframes mapFade {
+      0%, 100% { opacity: 0.05; }
+      25% { opacity: 0.09; }
+      50% { opacity: 0.14; }
+      75% { opacity: 0.08; }
+    }
+
+    @keyframes centerMapFade {
+      0%, 100% { opacity: 0.03; }
+      30% { opacity: 0.07; }
+      50% { opacity: 0.11; }
+      75% { opacity: 0.05; }
+    }
+
+    @keyframes sweep {
+      0% {
+        transform: translateX(-120%);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.08;
+      }
+      100% {
+        transform: translateX(220%);
+        opacity: 0;
       }
     }
 
@@ -97,19 +137,19 @@
       background-image:
         linear-gradient(var(--grid-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-      background-size: 72px 72px;
-      opacity: 0.28;
-      mask-image: radial-gradient(circle at center, black 24%, rgba(0,0,0,0.7) 48%, transparent 84%);
-      -webkit-mask-image: radial-gradient(circle at center, black 24%, rgba(0,0,0,0.7) 48%, transparent 84%);
-      transform: perspective(900px) rotateX(68deg) scale(1.5);
+      background-size: 78px 78px;
+      opacity: 0.22;
+      mask-image: radial-gradient(circle at center, black 22%, rgba(0,0,0,0.72) 48%, transparent 86%);
+      -webkit-mask-image: radial-gradient(circle at center, black 22%, rgba(0,0,0,0.72) 48%, transparent 86%);
+      transform: perspective(980px) rotateX(68deg) scale(1.55);
       transform-origin: center center;
     }
 
     .scene::after {
       background:
-        radial-gradient(circle at center, rgba(20,184,166,0.12) 0%, rgba(20,184,166,0.05) 22%, transparent 48%);
-      filter: blur(34px);
-      opacity: 0.8;
+        radial-gradient(circle at center, rgba(20,184,166,0.08) 0%, rgba(20,184,166,0.035) 22%, transparent 52%);
+      filter: blur(36px);
+      opacity: 0.7;
     }
 
     .territory-overlay {
@@ -122,15 +162,62 @@
       overflow: visible;
     }
 
+    .map-cluster {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .map-cluster.left {
+      animation:
+        mapFade 16s ease-in-out infinite,
+        mapDriftA 24s ease-in-out infinite;
+    }
+
+    .map-cluster.right {
+      animation:
+        mapFade 18s ease-in-out infinite 1.8s,
+        mapDriftB 28s ease-in-out infinite;
+    }
+
+    .map-cluster.center {
+      animation:
+        centerMapFade 20s ease-in-out infinite 0.8s,
+        mapDriftC 30s ease-in-out infinite;
+    }
+
+    .territory-path {
+      fill: var(--territory-fill);
+      stroke: var(--territory-stroke);
+      stroke-width: 1.2;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 0 6px var(--territory-shadow));
+    }
+
+    .territory-path.highlight {
+      stroke: var(--territory-highlight);
+      stroke-width: 1.35;
+    }
+
+    .map-sheen {
+      fill: none;
+      stroke: rgba(255,255,255,0.07);
+      stroke-width: 2.2;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round;
+      stroke-dasharray: 90 1200;
+      animation: sweep 12s linear infinite;
+      opacity: 0;
+    }
+
     .glow-orb {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 420px;
-      height: 420px;
+      width: 440px;
+      height: 440px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(20,184,166,0.22) 0%, rgba(20,184,166,0.1) 32%, rgba(20,184,166,0) 70%);
-      filter: blur(80px);
+      background: radial-gradient(circle, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.08) 34%, rgba(20,184,166,0) 72%);
+      filter: blur(86px);
       z-index: 3;
       pointer-events: none;
       animation: glowPulse 9s ease-in-out infinite;
@@ -219,15 +306,21 @@
       bottom: 14px;
       z-index: 20;
       font-size: 12px;
-      color: rgba(255,255,255,0.38);
+      color: rgba(255,255,255,0.42);
       letter-spacing: 0.02em;
       pointer-events: none;
       display: none;
     }
 
+    @media (max-width: 900px) {
+      .scene::before {
+        background-size: 60px 60px;
+      }
+    }
+
     @media (max-width: 640px) {
       .scene::before {
-        background-size: 54px 54px;
+        background-size: 52px 52px;
       }
 
       .logo-wrapper {
@@ -247,8 +340,8 @@
     <svg
       class="territory-overlay"
       id="territoryOverlay"
-      viewBox="0 0 1000 1000"
-      preserveAspectRatio="xMidYMid meet"
+      viewBox="0 0 1600 900"
+      preserveAspectRatio="xMidYMid slice"
     ></svg>
   </div>
 
@@ -273,19 +366,26 @@
   <div class="debug-note" id="debugNote"></div>
 
   <script>
+    function createSvgEl(tag) {
+      return document.createElementNS('http://www.w3.org/2000/svg', tag);
+    }
+
     async function loadTerritoryPolygons() {
       const svg = document.getElementById('territoryOverlay');
       const debugNote = document.getElementById('debugNote');
       if (!svg) return;
 
       try {
-        const response = await fetch('./assets/territory-backup-20260307-155828.json');
+        const jsonPath = './assets/territory-backup-20260307-155828.json';
+        const response = await fetch(jsonPath);
+
         if (!response.ok) {
           throw new Error(`Unable to load territory polygons: ${response.status}`);
         }
 
         const data = await response.json();
         const territories = Array.isArray(data.territories) ? data.territories : [];
+
         if (!territories.length) {
           throw new Error('No territories found in JSON.');
         }
@@ -306,42 +406,90 @@
         const minLng = Math.min(...lngs);
         const maxLng = Math.max(...lngs);
 
-        const viewBoxSize = 1000;
-        const padding = 92;
-        const drawable = viewBoxSize - padding * 2;
-
-        function project(lat, lng) {
-          const x = padding + ((lng - minLng) / (maxLng - minLng || 1)) * drawable;
-          const y = viewBoxSize - (padding + ((lat - minLat) / (maxLat - minLat || 1)) * drawable);
+        function projectToUnit(lat, lng) {
+          const x = (lng - minLng) / (maxLng - minLng || 1);
+          const y = 1 - ((lat - minLat) / (maxLat - minLat || 1));
           return [x, y];
+        }
+
+        function buildTerritoryPath(width, height, offsetX, offsetY) {
+          const fragment = document.createDocumentFragment();
+
+          territories.forEach((territory, index) => {
+            if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return;
+
+            const points = territory.polygon.map(([lat, lng]) => {
+              const [ux, uy] = projectToUnit(lat, lng);
+              return [
+                offsetX + (ux * width),
+                offsetY + (uy * height)
+              ];
+            });
+
+            const d = points
+              .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
+              .join(' ') + ' Z';
+
+            const path = createSvgEl('path');
+            path.setAttribute('d', d);
+            path.setAttribute('class', `territory-path${index % 11 === 0 ? ' highlight' : ''}`);
+            fragment.appendChild(path);
+
+            if (index % 14 === 0) {
+              const sheen = createSvgEl('path');
+              sheen.setAttribute('d', d);
+              sheen.setAttribute('class', 'map-sheen');
+              sheen.style.animationDelay = `${(index * 0.3).toFixed(2)}s`;
+              fragment.appendChild(sheen);
+            }
+          });
+
+          return fragment;
         }
 
         svg.innerHTML = '';
 
-        territories.forEach((territory, index) => {
-          if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return;
+        const clusters = [
+          {
+            className: 'map-cluster left',
+            width: 420,
+            height: 520,
+            x: 360,
+            y: 120
+          },
+          {
+            className: 'map-cluster right',
+            width: 420,
+            height: 520,
+            x: 920,
+            y: 470
+          },
+          {
+            className: 'map-cluster center',
+            width: 300,
+            height: 380,
+            x: 650,
+            y: 180
+          }
+        ];
 
-          const points = territory.polygon.map(([lat, lng]) => project(lat, lng));
-          const d = points
-            .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
-            .join(' ') + ' Z';
-
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', d);
-          path.setAttribute('fill', 'var(--territory-fill)');
-          path.setAttribute('stroke', 'var(--territory-stroke)');
-          path.setAttribute('stroke-width', '1.6');
-          path.setAttribute('vector-effect', 'non-scaling-stroke');
-          path.style.filter = 'drop-shadow(0 0 8px var(--territory-shadow))';
-          path.style.opacity = '0';
-          path.style.animation = `territoryFade 9s ease-in-out ${(index * 0.09).toFixed(2)}s infinite`;
-
-          svg.appendChild(path);
+        clusters.forEach(cluster => {
+          const group = createSvgEl('g');
+          group.setAttribute('class', cluster.className);
+          group.appendChild(
+            buildTerritoryPath(
+              cluster.width,
+              cluster.height,
+              cluster.x,
+              cluster.y
+            )
+          );
+          svg.appendChild(group);
         });
 
-        console.log(`Loaded ${territories.length} territories`);
+        console.log(`Loaded ${territories.length} territories from ${jsonPath}`);
         if (debugNote) {
-          debugNote.textContent = `Loaded ${territories.length} territories`;
+          debugNote.style.display = 'none';
         }
       } catch (error) {
         console.error('Territory overlay not loaded:', error);

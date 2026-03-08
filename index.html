@@ -3,46 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BPC Campaign - Secure Access</title>
-  
+  <title>Territory Assistant - Secure Access</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/app-config.js"></script>
-  
+
   <style>
     * { box-sizing: border-box; }
-    
+
+    :root {
+      --bg: #0f172a;
+      --teal: #14b8a6;
+      --line: rgba(148, 163, 184, 0.06);
+      --territory-stroke: rgba(125, 211, 252, 0.18);
+      --territory-fill: rgba(20, 184, 166, 0.03);
+      --territory-core-stroke: rgba(153, 246, 228, 0.24);
+      --territory-core-fill: rgba(20, 184, 166, 0.04);
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0f172a; /* Deep Slate Background */
-      background-image: radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.15) 0%, transparent 60%);
+      background: #0f172a;
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 30%),
+        radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.04) 0%, transparent 35%);
       color: white;
       font-family: 'Inter', sans-serif;
       overflow: hidden;
+      position: relative;
+      isolation: isolate;
     }
 
-    /* Subtle floating animation */
     @keyframes float {
       0% { transform: translateY(0px); }
-      50% { transform: translateY(-12px); }
+      50% { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
 
-    /* Cinematic glowing orb behind the logo */
+    @keyframes shimmerSweep {
+      0% { transform: translateX(-120%); opacity: 0; }
+      18% { opacity: 0.12; }
+      100% { transform: translateX(220%); opacity: 0; }
+    }
+
+    @keyframes territoryPulse {
+      0%, 100% {
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.08;
+      }
+      50% {
+        opacity: 0.3;
+      }
+      80% {
+        opacity: 0.08;
+      }
+    }
+
+    @keyframes territoryStrokePulse {
+      0%, 100% {
+        stroke-opacity: 0;
+        fill-opacity: 0;
+      }
+      20% {
+        stroke-opacity: 0.25;
+        fill-opacity: 0.02;
+      }
+      50% {
+        stroke-opacity: 0.7;
+        fill-opacity: 0.055;
+      }
+      80% {
+        stroke-opacity: 0.25;
+        fill-opacity: 0.02;
+      }
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .scene::before,
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: -10%;
+      pointer-events: none;
+    }
+
+    .scene::before {
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 70px 70px;
+      mask-image: radial-gradient(circle at center, black 38%, transparent 85%);
+      opacity: 0.22;
+      transform: perspective(900px) rotateX(67deg) scale(1.45);
+      transform-origin: center center;
+    }
+
+    .scene::after {
+      background:
+        radial-gradient(circle at 30% 25%, rgba(20,184,166,0.06), transparent 16%),
+        radial-gradient(circle at 70% 40%, rgba(59,130,246,0.05), transparent 18%),
+        radial-gradient(circle at 55% 75%, rgba(20,184,166,0.04), transparent 20%);
+      filter: blur(40px);
+      opacity: 0.85;
+    }
+
+    .territory-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .territory-group {
+      opacity: 0;
+      animation: territoryPulse 10s ease-in-out infinite;
+      transform-origin: center center;
+    }
+
+    .territory-outline {
+      fill: var(--territory-fill);
+      stroke: var(--territory-stroke);
+      stroke-width: 1.15;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 0 6px rgba(20,184,166,0.06));
+      animation: territoryStrokePulse 10s ease-in-out infinite;
+    }
+
+    .territory-outline.core {
+      fill: var(--territory-core-fill);
+      stroke: var(--territory-core-stroke);
+    }
+
+    .territory-glint {
+      fill: none;
+      stroke: rgba(255,255,255,0.12);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round;
+      stroke-dasharray: 120 1200;
+      opacity: 0;
+      animation: shimmerSweep 9s linear infinite;
+    }
+
     .glow-orb {
       position: absolute;
       width: 350px;
       height: 350px;
-      background: rgba(20, 184, 166, 0.3);
+      background: rgba(20, 184, 166, 0.22);
       filter: blur(120px);
-      z-index: 0;
+      z-index: 3;
       animation: float 8s ease-in-out infinite;
     }
 
@@ -54,11 +184,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 70px; /* Massive breathing room */
+      gap: 70px;
       padding: 40px;
     }
 
-    /* Giant Logo Container */
     .logo-wrapper {
       width: 280px;
       height: 280px;
@@ -73,18 +202,17 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.6)); /* Heavy, premium shadow */
+      filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.6));
       z-index: 2;
     }
 
-    /* Sleek Glassmorphism Button */
     .btn-google {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: white;
       padding: 18px 36px;
-      border-radius: 100px; /* Elegant pill shape */
+      border-radius: 100px;
       font-weight: 600;
       font-size: 16px;
       letter-spacing: 0.5px;
@@ -96,11 +224,13 @@
       gap: 16px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-google:hover {
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(20, 184, 166, 0.5); /* Teal glow on hover */
+      border-color: rgba(20, 184, 166, 0.5);
       transform: translateY(-2px);
       box-shadow: 0 12px 40px rgba(20, 184, 166, 0.25);
     }
@@ -108,17 +238,48 @@
     .btn-google:active {
       transform: translateY(1px);
     }
+
+    .btn-google::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.08) 50%, transparent 80%);
+      transform: translateX(-120%);
+      transition: transform 0.8s ease;
+    }
+
+    .btn-google:hover::before {
+      transform: translateX(120%);
+    }
+
+    @media (max-width: 640px) {
+      .scene::before { background-size: 54px 54px; }
+
+      .logo-wrapper {
+        width: 230px;
+        height: 230px;
+      }
+
+      main {
+        gap: 48px;
+        padding: 24px;
+      }
+    }
   </style>
 </head>
 <body>
-  
+
+  <div class="scene">
+    <svg class="territory-overlay" id="territoryOverlay" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
   <div class="glow-orb"></div>
-  
+
   <main>
     <div class="logo-wrapper">
-      <img src="assets/logo.png" alt="BPC Campaign">
+      <img src="assets/logo.png" alt="Territory Assistant">
     </div>
-    
+
     <button class="btn-google" onclick="window.appConfig.signInWithGoogle()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -129,12 +290,76 @@
       Secure Sign In
     </button>
   </main>
-  
+
   <script>
+    async function loadTerritoryPolygons() {
+      const svg = document.getElementById('territoryOverlay');
+      if (!svg) return;
+
+      try {
+        const response = await fetch('assets/territory-backup-20260307-155828.json');
+        if (!response.ok) throw new Error('Unable to load territory polygons.');
+
+        const data = await response.json();
+        const territories = Array.isArray(data.territories) ? data.territories : [];
+        if (!territories.length) return;
+
+        const allPoints = territories.flatMap(t => Array.isArray(t.polygon) ? t.polygon : []);
+        if (!allPoints.length) return;
+
+        const lats = allPoints.map(([lat]) => lat);
+        const lngs = allPoints.map(([, lng]) => lng);
+
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+
+        const vb = 1000;
+        const pad = 90;
+        const inner = vb - pad * 2;
+
+        function project(lat, lng) {
+          const x = pad + ((lng - minLng) / (maxLng - minLng || 1)) * inner;
+          const y = vb - (pad + ((lat - minLat) / (maxLat - minLat || 1)) * inner);
+          return [x, y];
+        }
+
+        territories.forEach((territory, index) => {
+          if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return;
+
+          const points = territory.polygon.map(([lat, lng]) => project(lat, lng));
+          const d = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt[0].toFixed(2)} ${pt[1].toFixed(2)}`).join(' ') + ' Z';
+
+          const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          group.setAttribute('class', 'territory-group');
+          group.style.animationDelay = `${(index * 0.35).toFixed(2)}s`;
+
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('class', `territory-outline ${index % 8 === 0 ? 'core' : ''}`);
+          path.style.animationDelay = `${(index * 0.35).toFixed(2)}s`;
+
+          const glint = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          glint.setAttribute('d', d);
+          glint.setAttribute('class', 'territory-glint');
+          glint.style.animationDelay = `${(index * 0.35 + 1.2).toFixed(2)}s`;
+
+          group.appendChild(path);
+          group.appendChild(glint);
+          svg.appendChild(group);
+        });
+      } catch (err) {
+        console.warn('Territory overlay not loaded:', err);
+      }
+    }
+
     window.onload = async () => {
+      loadTerritoryPolygons();
+
       if (window.appConfig && window.appConfig.supabase) {
-          const { data: { session } } = await window.appConfig.supabase.auth.getSession();
-          if (session) window.location.href = 'Territory Management.html';
+        const { data: { session } } = await window.appConfig.supabase.auth.getSession();
+        if (session) window.location.href = 'Territory Management.html';
       }
     };
   </script>

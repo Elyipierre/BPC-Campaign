@@ -16,10 +16,13 @@
     * { box-sizing: border-box; }
 
     :root {
-      --grid-line: rgba(148, 163, 184, 0.035);
-      --territory-stroke: rgba(153, 246, 228, 0.105);
-      --territory-fill: rgba(20, 184, 166, 0.010);
-      --territory-shadow: rgba(20, 184, 166, 0.022);
+      --grid-line: rgba(148, 163, 184, 0.03);
+      --territory-stroke: rgba(153, 246, 228, 0.16);
+      --territory-fill: rgba(20, 184, 166, 0.02);
+      --territory-shadow: rgba(20, 184, 166, 0.035);
+      --street-text: rgba(220, 252, 231, 0.48);
+      --street-bg: rgba(10, 20, 40, 0.28);
+      --street-border: rgba(255, 255, 255, 0.06);
     }
 
     html, body {
@@ -38,8 +41,8 @@
       color: white;
       font-family: 'Inter', sans-serif;
       background:
-        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0.06) 16%, rgba(15, 23, 42, 0) 42%),
-        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.045) 0%, transparent 46%),
+        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.055) 16%, rgba(15, 23, 42, 0) 42%),
+        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.04) 0%, transparent 46%),
         linear-gradient(180deg, #071332 0%, #081536 32%, #08142f 68%, #06112a 100%);
       isolation: isolate;
     }
@@ -52,35 +55,23 @@
 
     @keyframes glowPulse {
       0%, 100% {
-        opacity: 0.62;
+        opacity: 0.58;
         transform: translate(-50%, -50%) scale(1);
       }
       50% {
-        opacity: 0.88;
-        transform: translate(-50%, -50%) scale(1.04);
+        opacity: 0.82;
+        transform: translate(-50%, -50%) scale(1.035);
       }
     }
 
-    @keyframes mapDriftA {
-      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
-      50% { transform: translate3d(10px, -8px, 0) rotate(calc(var(--rot) + 1deg)) scale(calc(var(--scale) * 1.015)); }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    @keyframes mapDriftB {
-      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
-      50% { transform: translate3d(-12px, 10px, 0) rotate(calc(var(--rot) - 1deg)) scale(calc(var(--scale) * 1.02)); }
-    }
-
-    @keyframes mapDriftC {
-      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
-      50% { transform: translate3d(8px, 12px, 0) rotate(calc(var(--rot) + 0.8deg)) scale(calc(var(--scale) * 1.012)); }
-    }
-
-    @keyframes mapFade {
-      0%, 100% { opacity: 0.018; }
-      35% { opacity: 0.05; }
-      50% { opacity: 0.075; }
-      75% { opacity: 0.04; }
+    @keyframes overlayFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
 
     .scene {
@@ -103,19 +94,19 @@
       background-image:
         linear-gradient(var(--grid-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-      background-size: 84px 84px;
-      opacity: 0.16;
-      mask-image: radial-gradient(circle at center, black 18%, rgba(0,0,0,0.68) 44%, transparent 88%);
-      -webkit-mask-image: radial-gradient(circle at center, black 18%, rgba(0,0,0,0.68) 44%, transparent 88%);
-      transform: perspective(980px) rotateX(68deg) scale(1.58);
+      background-size: 86px 86px;
+      opacity: 0.14;
+      mask-image: radial-gradient(circle at center, black 16%, rgba(0,0,0,0.64) 44%, transparent 88%);
+      -webkit-mask-image: radial-gradient(circle at center, black 16%, rgba(0,0,0,0.64) 44%, transparent 88%);
+      transform: perspective(980px) rotateX(68deg) scale(1.6);
       transform-origin: center center;
     }
 
     .scene::after {
       background:
-        radial-gradient(circle at center, rgba(20,184,166,0.07) 0%, rgba(20,184,166,0.03) 22%, transparent 56%);
-      filter: blur(38px);
-      opacity: 0.68;
+        radial-gradient(circle at center, rgba(20,184,166,0.06) 0%, rgba(20,184,166,0.025) 22%, transparent 58%);
+      filter: blur(40px);
+      opacity: 0.62;
     }
 
     .territory-overlay {
@@ -125,39 +116,44 @@
       height: 100%;
       z-index: 2;
       pointer-events: none;
-      overflow: visible;
+      overflow: hidden;
     }
 
-    .map-fragment {
-      transform-box: fill-box;
-      transform-origin: center;
-      opacity: 0.04;
+    .territory-layer {
+      opacity: 0;
+      transition: opacity 2s ease;
     }
 
-    .map-fragment.drift-a {
-      animation:
-        mapFade 18s ease-in-out infinite,
-        mapDriftA 26s ease-in-out infinite;
-    }
-
-    .map-fragment.drift-b {
-      animation:
-        mapFade 20s ease-in-out infinite 1.3s,
-        mapDriftB 30s ease-in-out infinite;
-    }
-
-    .map-fragment.drift-c {
-      animation:
-        mapFade 22s ease-in-out infinite 2.1s,
-        mapDriftC 34s ease-in-out infinite;
+    .territory-layer.visible {
+      opacity: 1;
     }
 
     .territory-path {
       fill: var(--territory-fill);
       stroke: var(--territory-stroke);
-      stroke-width: 1.1;
+      stroke-width: 1.4;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 4px var(--territory-shadow));
+      filter: drop-shadow(0 0 5px var(--territory-shadow));
+    }
+
+    .street-label {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      fill: var(--street-text);
+      paint-order: stroke;
+      stroke: rgba(5, 10, 20, 0.35);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+
+    .street-chip {
+      fill: var(--street-bg);
+      stroke: var(--street-border);
+      stroke-width: 1;
+      rx: 999;
+      ry: 999;
     }
 
     .glow-orb {
@@ -167,7 +163,7 @@
       width: 440px;
       height: 440px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(20,184,166,0.18) 0%, rgba(20,184,166,0.07) 34%, rgba(20,184,166,0) 72%);
+      background: radial-gradient(circle, rgba(20,184,166,0.16) 0%, rgba(20,184,166,0.06) 34%, rgba(20,184,166,0) 72%);
       filter: blur(86px);
       z-index: 3;
       pointer-events: none;
@@ -283,6 +279,10 @@
         gap: 48px;
         padding: 24px;
       }
+
+      .street-label {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -317,153 +317,273 @@
   <div class="debug-note" id="debugNote"></div>
 
   <script>
+    const territoryStreets = {
+      /*
+        Replace these with your real territory IDs or names from your JSON.
+        Example formats:
+
+        "1": ["Rockaway Blvd", "130th St", "Sutphin Blvd", "145th Ave"],
+        "14": ["Guy R Brewer Blvd", "Linden Blvd", "147th Ave"],
+        "Territory 08": ["Baisley Blvd", "150th St", "N Conduit Ave"]
+      */
+    };
+
     function createSvgEl(tag) {
       return document.createElementNS('http://www.w3.org/2000/svg', tag);
     }
 
-    function seededRandom(seed) {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
     }
 
-    function intersectsProtectedZone(x, y, w, h) {
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function getTerritoryKey(territory, index) {
+      return String(
+        territory?.id ??
+        territory?.name ??
+        territory?.number ??
+        territory?.territory ??
+        index + 1
+      );
+    }
+
+    function getStreetListForTerritory(territory, index) {
+      const key = getTerritoryKey(territory, index);
+      return territoryStreets[key] || [];
+    }
+
+    function computeCentroid(points) {
+      const count = points.length || 1;
+      const sum = points.reduce((acc, [x, y]) => {
+        acc.x += x;
+        acc.y += y;
+        return acc;
+      }, { x: 0, y: 0 });
+
+      return [sum.x / count, sum.y / count];
+    }
+
+    function distributeStreetAnchors(cx, cy, count, maxWidth, maxHeight) {
+      const anchors = [];
+      const radiusX = Math.min(120, maxWidth * 0.2);
+      const radiusY = Math.min(90, maxHeight * 0.16);
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / Math.max(count, 1) - Math.PI / 2;
+        const x = cx + Math.cos(angle) * radiusX;
+        const y = cy + Math.sin(angle) * radiusY;
+        anchors.push([
+          clamp(x, 90, 1510),
+          clamp(y, 80, 840)
+        ]);
+      }
+
+      return anchors;
+    }
+
+    function pointInProtectedZone(x, y) {
       const protectedZones = [
-        { x: 520, y: 120, w: 560, h: 520 },
-        { x: 610, y: 520, w: 380, h: 180 }
+        { x: 560, y: 120, w: 500, h: 460 },
+        { x: 610, y: 520, w: 380, h: 160 }
       ];
 
-      return protectedZones.some(zone => {
-        return !(
-          x + w < zone.x ||
-          x > zone.x + zone.w ||
-          y + h < zone.y ||
-          y > zone.y + zone.h
-        );
-      });
+      return protectedZones.some(zone =>
+        x >= zone.x && x <= zone.x + zone.w &&
+        y >= zone.y && y <= zone.y + zone.h
+      );
     }
 
-    async function loadTerritoryPolygons() {
+    function chooseDisplayRegion() {
+      const regions = [
+        { xMin: 60,  xMax: 500,  yMin: 70,  yMax: 360 },
+        { xMin: 1060, xMax: 1500, yMin: 80,  yMax: 360 },
+        { xMin: 70,  xMax: 500,  yMin: 470, yMax: 820 },
+        { xMin: 1060, xMax: 1500, yMin: 470, yMax: 820 },
+        { xMin: 260, xMax: 520,  yMin: 260, yMax: 700 },
+        { xMin: 1080, xMax: 1360, yMin: 220, yMax: 720 }
+      ];
+
+      return regions[Math.floor(Math.random() * regions.length)];
+    }
+
+    function buildStreetLabel(svgGroup, textValue, x, y) {
+      const text = createSvgEl('text');
+      text.setAttribute('class', 'street-label');
+      text.setAttribute('x', x);
+      text.setAttribute('y', y);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.textContent = textValue;
+
+      svgGroup.appendChild(text);
+      const bbox = text.getBBox();
+
+      const rect = createSvgEl('rect');
+      rect.setAttribute('class', 'street-chip');
+      rect.setAttribute('x', bbox.x - 10);
+      rect.setAttribute('y', bbox.y - 6);
+      rect.setAttribute('width', bbox.width + 20);
+      rect.setAttribute('height', bbox.height + 12);
+      rect.setAttribute('rx', 999);
+      rect.setAttribute('ry', 999);
+
+      svgGroup.insertBefore(rect, text);
+    }
+
+    async function loadTerritoryData() {
+      const response = await fetch('./assets/territory-backup-20260307-155828.json');
+      if (!response.ok) {
+        throw new Error(`Unable to load territory polygons: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const territories = Array.isArray(data.territories) ? data.territories : [];
+      if (!territories.length) {
+        throw new Error('No territories found in JSON.');
+      }
+
+      const allPoints = territories.flatMap(territory =>
+        Array.isArray(territory.polygon) ? territory.polygon : []
+      );
+
+      if (!allPoints.length) {
+        throw new Error('No polygon points found.');
+      }
+
+      const lats = allPoints.map(([lat]) => lat);
+      const lngs = allPoints.map(([, lng]) => lng);
+
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+
+      return territories
+        .map((territory, index) => {
+          if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return null;
+
+          const normalized = territory.polygon.map(([lat, lng]) => {
+            const x = (lng - minLng) / (maxLng - minLng || 1);
+            const y = 1 - ((lat - minLat) / (maxLat - minLat || 1));
+            return [x, y];
+          });
+
+          return {
+            raw: territory,
+            index,
+            key: getTerritoryKey(territory, index),
+            streets: getStreetListForTerritory(territory, index),
+            normalized
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function createTerritoryScene(svg, territoryEntry) {
+      const layer = createSvgEl('g');
+      layer.setAttribute('class', 'territory-layer');
+
+      const region = chooseDisplayRegion();
+      const baseWidth = randomBetween(220, 360);
+      const baseHeight = randomBetween(260, 420);
+
+      const offsetX = randomBetween(region.xMin, region.xMax - baseWidth);
+      const offsetY = randomBetween(region.yMin, region.yMax - baseHeight);
+
+      const projectedPoints = territoryEntry.normalized.map(([ux, uy]) => [
+        offsetX + ux * baseWidth,
+        offsetY + uy * baseHeight
+      ]);
+
+      const centroid = computeCentroid(projectedPoints);
+
+      const pathData = projectedPoints
+        .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
+        .join(' ') + ' Z';
+
+      const path = createSvgEl('path');
+      path.setAttribute('class', 'territory-path');
+      path.setAttribute('d', pathData);
+
+      layer.appendChild(path);
+
+      const streets = territoryEntry.streets.slice(0, 4);
+      if (streets.length) {
+        const anchors = distributeStreetAnchors(
+          centroid[0],
+          centroid[1],
+          streets.length,
+          baseWidth,
+          baseHeight
+        );
+
+        streets.forEach((street, i) => {
+          const [x, y] = anchors[i];
+          if (!pointInProtectedZone(x, y)) {
+            buildStreetLabel(layer, street, x, y);
+          }
+        });
+      }
+
+      svg.appendChild(layer);
+
+      requestAnimationFrame(() => {
+        layer.classList.add('visible');
+      });
+
+      return layer;
+    }
+
+    async function startTerritoryRotation() {
       const svg = document.getElementById('territoryOverlay');
       const debugNote = document.getElementById('debugNote');
       if (!svg) return;
 
       try {
-        const jsonPath = './assets/territory-backup-20260307-155828.json';
-        const response = await fetch(jsonPath);
-
-        if (!response.ok) {
-          throw new Error(`Unable to load territory polygons: ${response.status}`);
+        const territoryEntries = await loadTerritoryData();
+        if (!territoryEntries.length) {
+          throw new Error('No usable territory polygons found.');
         }
-
-        const data = await response.json();
-        const territories = Array.isArray(data.territories) ? data.territories : [];
-
-        if (!territories.length) {
-          throw new Error('No territories found in JSON.');
-        }
-
-        const allPoints = territories.flatMap(territory =>
-          Array.isArray(territory.polygon) ? territory.polygon : []
-        );
-
-        if (!allPoints.length) {
-          throw new Error('No polygon points found.');
-        }
-
-        const lats = allPoints.map(([lat]) => lat);
-        const lngs = allPoints.map(([, lng]) => lng);
-
-        const minLat = Math.min(...lats);
-        const maxLat = Math.max(...lats);
-        const minLng = Math.min(...lngs);
-        const maxLng = Math.max(...lngs);
-
-        function projectToUnit(lat, lng) {
-          const x = (lng - minLng) / (maxLng - minLng || 1);
-          const y = 1 - ((lat - minLat) / (maxLat - minLat || 1));
-          return [x, y];
-        }
-
-        function buildTerritoryFragment(width, height, offsetX, offsetY) {
-          const fragment = document.createDocumentFragment();
-
-          territories.forEach((territory) => {
-            if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return;
-
-            const points = territory.polygon.map(([lat, lng]) => {
-              const [ux, uy] = projectToUnit(lat, lng);
-              return [
-                offsetX + (ux * width),
-                offsetY + (uy * height)
-              ];
-            });
-
-            const d = points
-              .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
-              .join(' ') + ' Z';
-
-            const path = createSvgEl('path');
-            path.setAttribute('d', d);
-            path.setAttribute('class', 'territory-path');
-            fragment.appendChild(path);
-          });
-
-          return fragment;
-        }
-
-        svg.innerHTML = '';
-
-        const viewWidth = 1600;
-        const viewHeight = 900;
-        const placements = [];
-        const fragmentCount = 10;
-
-        for (let i = 0; i < fragmentCount; i++) {
-          const width = 150 + seededRandom(i + 1) * 220;
-          const height = width * (1.08 + seededRandom(i + 20) * 0.35);
-          let x = seededRandom(i + 100) * (viewWidth - width);
-          let y = seededRandom(i + 200) * (viewHeight - height);
-
-          let tries = 0;
-          while (intersectsProtectedZone(x, y, width, height) && tries < 40) {
-            x = seededRandom(i + 100 + tries * 3.1) * (viewWidth - width);
-            y = seededRandom(i + 200 + tries * 2.7) * (viewHeight - height);
-            tries++;
-          }
-
-          placements.push({
-            x,
-            y,
-            width,
-            height,
-            rotation: -18 + seededRandom(i + 300) * 36,
-            scale: 0.8 + seededRandom(i + 400) * 0.55,
-            drift: ['drift-a', 'drift-b', 'drift-c'][i % 3]
-          });
-        }
-
-        placements.forEach((placement, index) => {
-          const group = createSvgEl('g');
-          group.setAttribute('class', `map-fragment ${placement.drift}`);
-          group.style.setProperty('--rot', `${placement.rotation.toFixed(2)}deg`);
-          group.style.setProperty('--scale', placement.scale.toFixed(3));
-          group.style.animationDelay = `${(index * 1.2).toFixed(2)}s, ${(index * 0.6).toFixed(2)}s`;
-
-          group.appendChild(
-            buildTerritoryFragment(
-              placement.width,
-              placement.height,
-              placement.x,
-              placement.y
-            )
-          );
-
-          svg.appendChild(group);
-        });
 
         if (debugNote) {
           debugNote.style.display = 'none';
         }
+
+        let currentLayer = null;
+        let lastIndex = -1;
+
+        function nextIndex() {
+          if (territoryEntries.length === 1) return 0;
+
+          let idx = Math.floor(Math.random() * territoryEntries.length);
+          while (idx === lastIndex) {
+            idx = Math.floor(Math.random() * territoryEntries.length);
+          }
+          lastIndex = idx;
+          return idx;
+        }
+
+        async function cycleTerritory() {
+          if (currentLayer) {
+            currentLayer.classList.remove('visible');
+            await new Promise(resolve => setTimeout(resolve, 1800));
+            currentLayer.remove();
+            currentLayer = null;
+          }
+
+          const territory = territoryEntries[nextIndex()];
+          currentLayer = createTerritoryScene(svg, territory);
+
+          const hasStreets = territory.streets.length > 0;
+          const visibleTime = hasStreets ? 5200 : 4200;
+
+          setTimeout(cycleTerritory, visibleTime);
+        }
+
+        cycleTerritory();
       } catch (error) {
         console.error('Territory overlay not loaded:', error);
         if (debugNote) {
@@ -474,7 +594,7 @@
     }
 
     window.onload = async () => {
-      await loadTerritoryPolygons();
+      await startTerritoryRotation();
 
       if (window.appConfig && window.appConfig.supabase) {
         const { data: { session } } = await window.appConfig.supabase.auth.getSession();

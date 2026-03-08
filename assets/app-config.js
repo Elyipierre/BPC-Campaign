@@ -11,19 +11,17 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 window.appConfig = {
     supabase: supabaseClient,
     
-    // Authentication Logic
-    signInWithGoogle: async () => {
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + '/territory-management.html'
-            }
-        });
-        if (error) {
-            console.error("Login failed:", error.message);
-            alert("Auth Error: " + error.message);
+    // assets/app-config.js
+signInWithGoogle: async () => {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            // Must match the new filename exactly
+            redirectTo: 'https://elyipierre.github.io/territory-management.html'
         }
-    },
+    });
+    if (error) console.error("Login failed:", error.message);
+},
 
     signOut: async () => {
         await supabaseClient.auth.signOut();

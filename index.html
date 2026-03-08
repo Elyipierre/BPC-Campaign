@@ -18,16 +18,16 @@
     :root {
       --grid-line: rgba(148, 163, 184, 0.028);
 
-      --territory-base-stroke: rgba(153, 246, 228, 0.06);
-      --territory-base-fill: rgba(20, 184, 166, 0.006);
-      --territory-base-shadow: rgba(20, 184, 166, 0.012);
+      --territory-base-stroke: rgba(153, 246, 228, 0.055);
+      --territory-base-fill: rgba(20, 184, 166, 0.005);
+      --territory-base-shadow: rgba(20, 184, 166, 0.01);
 
-      --territory-hi-stroke: rgba(153, 246, 228, 0.28);
-      --territory-hi-fill: rgba(20, 184, 166, 0.04);
-      --territory-hi-shadow: rgba(20, 184, 166, 0.08);
+      --territory-hi-stroke: rgba(153, 246, 228, 0.22);
+      --territory-hi-fill: rgba(20, 184, 166, 0.03);
+      --territory-hi-shadow: rgba(20, 184, 166, 0.06);
 
-      --street-text: rgba(220, 252, 231, 0.5);
-      --street-bg: rgba(10, 20, 40, 0.26);
+      --street-text: rgba(220, 252, 231, 0.48);
+      --street-bg: rgba(10, 20, 40, 0.24);
       --street-border: rgba(255, 255, 255, 0.06);
     }
 
@@ -71,12 +71,8 @@
     }
 
     @keyframes pulseHighlight {
-      0%, 100% {
-        opacity: 0.85;
-      }
-      50% {
-        opacity: 1;
-      }
+      0%, 100% { opacity: 0.82; }
+      50% { opacity: 1; }
     }
 
     .scene {
@@ -129,7 +125,7 @@
       stroke: var(--territory-base-stroke);
       stroke-width: 1.05;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 3px var(--territory-base-shadow));
+      filter: drop-shadow(0 0 2px var(--territory-base-shadow));
     }
 
     .highlight-layer {
@@ -144,14 +140,14 @@
     .territory-highlight-path {
       fill: var(--territory-hi-fill);
       stroke: var(--territory-hi-stroke);
-      stroke-width: 1.6;
+      stroke-width: 1.5;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 7px var(--territory-hi-shadow));
+      filter: drop-shadow(0 0 6px var(--territory-hi-shadow));
       animation: pulseHighlight 4.6s ease-in-out infinite;
     }
 
     .street-label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -306,7 +302,7 @@
       class="territory-overlay"
       id="territoryOverlay"
       viewBox="0 0 1600 900"
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="xMidYMid meet"
     ></svg>
   </div>
 
@@ -331,13 +327,22 @@
   <div class="debug-note" id="debugNote"></div>
 
   <script>
-    const territoryStreets = {
-      /*
+    /*
+      Use territoryNo values from your JSON as keys.
       Example:
-      "1": ["Rockaway Blvd", "130th St", "Sutphin Blvd"],
-      "2": ["Baisley Blvd", "150th St", "N Conduit Ave"]
-      */
-    };
+      const territoryStreets = {
+        "1": ["Rockaway Blvd", "130th St", "Sutphin Blvd"],
+        "2": ["Baisley Blvd", "150th St", "N Conduit Ave"]
+      };
+    */
+    const territoryStreets = {};
+
+    const VIEW_W = 1600;
+    const VIEW_H = 900;
+    const MAP_PAD_X = 90;
+    const MAP_PAD_Y = 70;
+    const POLYGON_INSET = 0.988; // lower = wider visual road gap
+    const LABEL_LIMIT = 4;
 
     function createSvgEl(tag) {
       return document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -345,25 +350,6 @@
 
     function clamp(value, min, max) {
       return Math.min(max, Math.max(min, value));
-    }
-
-    function randomBetween(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    function getTerritoryKey(territory, index) {
-      return String(
-        territory?.id ??
-        territory?.name ??
-        territory?.number ??
-        territory?.territory ??
-        index + 1
-      );
-    }
-
-    function getStreetListForTerritory(territory, index) {
-      const key = getTerritoryKey(territory, index);
-      return territoryStreets[key] || [];
     }
 
     function computeCentroid(points) {
@@ -377,22 +363,31 @@
       return [sum.x / count, sum.y / count];
     }
 
-    function distributeStreetAnchors(cx, cy, count, maxWidth, maxHeight) {
-      const anchors = [];
-      const radiusX = Math.min(120, maxWidth * 0.2);
-      const radiusY = Math.min(90, maxHeight * 0.16);
+    function insetPolygon(points, scaleFactor = POLYGON_INSET) {
+      const [cx, cy] = computeCentroid(points);
+      return points.map(([x, y]) => [
+        cx + (x - cx) * scaleFactor,
+        cy + (y - cy) * scaleFactor
+      ]);
+    }
 
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i) / Math.max(count, 1) - Math.PI / 2;
-        const x = cx + Math.cos(angle) * radiusX;
-        const y = cy + Math.sin(angle) * radiusY;
-        anchors.push([
-          clamp(x, 90, 1510),
-          clamp(y, 80, 840)
-        ]);
-      }
+    function pointsToPath(points) {
+      return points
+        .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
+        .join(' ') + ' Z';
+    }
 
-      return anchors;
+    function getTerritoryKey(territory, index) {
+      return String(
+        territory?.territoryNo ??
+        territory?.id ??
+        territory?.number ??
+        index + 1
+      );
+    }
+
+    function getStreetListForTerritory(territory, index) {
+      return territoryStreets[getTerritoryKey(territory, index)] || [];
     }
 
     function pointInProtectedZone(x, y) {
@@ -431,6 +426,23 @@
       svgGroup.insertBefore(rect, text);
     }
 
+    function distributeStreetAnchors(anchor, count, width, height) {
+      const [cx, cy] = anchor;
+      const anchors = [];
+      const radiusX = Math.min(115, width * 0.16);
+      const radiusY = Math.min(85, height * 0.14);
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / Math.max(count, 1) - Math.PI / 2;
+        anchors.push([
+          clamp(cx + Math.cos(angle) * radiusX, 90, 1510),
+          clamp(cy + Math.sin(angle) * radiusY, 80, 840)
+        ]);
+      }
+
+      return anchors;
+    }
+
     async function loadTerritoryData() {
       const response = await fetch('./assets/territory-backup-20260307-155828.json');
       if (!response.ok) {
@@ -459,69 +471,44 @@
       const minLng = Math.min(...lngs);
       const maxLng = Math.max(...lngs);
 
+      const drawableW = VIEW_W - MAP_PAD_X * 2;
+      const drawableH = VIEW_H - MAP_PAD_Y * 2;
+
       return territories
         .map((territory, index) => {
           if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return null;
 
-          const normalized = territory.polygon.map(([lat, lng]) => {
-            const x = (lng - minLng) / (maxLng - minLng || 1);
-            const y = 1 - ((lat - minLat) / (maxLat - minLat || 1));
+          const projected = territory.polygon.map(([lat, lng]) => {
+            const x = MAP_PAD_X + ((lng - minLng) / (maxLng - minLng || 1)) * drawableW;
+            const y = VIEW_H - (MAP_PAD_Y + ((lat - minLat) / (maxLat - minLat || 1)) * drawableH);
             return [x, y];
           });
+
+          const insetPoints = insetPolygon(projected, POLYGON_INSET);
+          const centroid = computeCentroid(insetPoints);
+
+          let anchor = centroid;
+          if (Array.isArray(territory.labelAnchor) && territory.labelAnchor.length === 2) {
+            const [lat, lng] = territory.labelAnchor;
+            anchor = [
+              MAP_PAD_X + ((lng - minLng) / (maxLng - minLng || 1)) * drawableW,
+              VIEW_H - (MAP_PAD_Y + ((lat - minLat) / (maxLat - minLat || 1)) * drawableH)
+            ];
+          }
 
           return {
             raw: territory,
             index,
             key: getTerritoryKey(territory, index),
             streets: getStreetListForTerritory(territory, index),
-            normalized
+            width: Math.max(...insetPoints.map(p => p[0])) - Math.min(...insetPoints.map(p => p[0])),
+            height: Math.max(...insetPoints.map(p => p[1])) - Math.min(...insetPoints.map(p => p[1])),
+            centroid,
+            anchor,
+            pathData: pointsToPath(insetPoints)
           };
         })
         .filter(Boolean);
-    }
-
-    function layoutTerritories(entries) {
-      const regions = [
-        { xMin: 40,  xMax: 360,  yMin: 40,  yMax: 260 },
-        { xMin: 1180, xMax: 1520, yMin: 40,  yMax: 260 },
-        { xMin: 40,  xMax: 340,  yMin: 560, yMax: 820 },
-        { xMin: 1220, xMax: 1540, yMin: 560, yMax: 840 },
-        { xMin: 160, xMax: 430,  yMin: 250, yMax: 560 },
-        { xMin: 1140, xMax: 1430, yMin: 250, yMax: 560 },
-        { xMin: 420, xMax: 560,  yMin: 20,  yMax: 170 },
-        { xMin: 1040, xMax: 1180, yMin: 20,  yMax: 170 },
-        { xMin: 420, xMax: 540,  yMin: 700, yMax: 860 },
-        { xMin: 1060, xMax: 1180, yMin: 700, yMax: 860 }
-      ];
-
-      return entries.map((entry, idx) => {
-        const region = regions[idx % regions.length];
-        const width = randomBetween(180, 300);
-        const height = randomBetween(220, 360);
-
-        const offsetX = randomBetween(region.xMin, Math.max(region.xMin + 1, region.xMax - width));
-        const offsetY = randomBetween(region.yMin, Math.max(region.yMin + 1, region.yMax - height));
-
-        const projectedPoints = entry.normalized.map(([ux, uy]) => [
-          offsetX + ux * width,
-          offsetY + uy * height
-        ]);
-
-        const centroid = computeCentroid(projectedPoints);
-
-        const pathData = projectedPoints
-          .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
-          .join(' ') + ' Z';
-
-        return {
-          ...entry,
-          projectedPoints,
-          centroid,
-          width,
-          height,
-          pathData
-        };
-      });
     }
 
     function renderBaseTerritories(svg, entries) {
@@ -531,12 +518,10 @@
         const path = createSvgEl('path');
         path.setAttribute('class', 'territory-base-path');
         path.setAttribute('d', entry.pathData);
-        path.dataset.territoryKey = entry.key;
         baseLayer.appendChild(path);
       });
 
       svg.appendChild(baseLayer);
-      return baseLayer;
     }
 
     function createHighlightLayer(entry) {
@@ -548,11 +533,10 @@
       path.setAttribute('d', entry.pathData);
       layer.appendChild(path);
 
-      const streets = entry.streets.slice(0, 4);
+      const streets = entry.streets.slice(0, LABEL_LIMIT);
       if (streets.length) {
         const anchors = distributeStreetAnchors(
-          entry.centroid[0],
-          entry.centroid[1],
+          entry.anchor,
           streets.length,
           entry.width,
           entry.height
@@ -575,7 +559,7 @@
       if (!svg) return;
 
       try {
-        const entries = layoutTerritories(await loadTerritoryData());
+        const entries = await loadTerritoryData();
         if (!entries.length) {
           throw new Error('No usable territory polygons found.');
         }

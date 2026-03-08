@@ -3,132 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPC Campaign | Territory Management</title>
+    <title>BPC Campaign | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* Base Glassmorphism Styles */
-        body {
-            background: #0f172a;
-            color: white;
-            min-height: 100vh;
-            transition: all 0.5s ease;
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        /* Campaign Mode Visual Indicator */
-        body.campaign-active {
-            box-shadow: inset 0 0 100px rgba(20, 184, 166, 0.2);
-        }
-        body.campaign-active::after {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; height: 4px;
-            background: #14b8a6;
-            z-index: 100;
-        }
+        body { background: #0f172a; color: white; min-height: 100vh; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body.campaign-active { border-top: 4px solid #14b8a6; }
     </style>
 </head>
-<body class="bg-slate-900 font-sans antialiased">
-
-    <nav class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-white/5">
+<body class="antialiased">
+    <nav class="glass-panel sticky top-0 z-50 px-8 py-4 flex items-center justify-between border-b border-white/5">
         <div class="flex items-center space-x-4">
-            <img src="assets/logo.png" alt="Logo" class="w-10 h-10 object-contain">
-            <h1 class="text-xl font-bold tracking-tight">BPC <span class="text-slate-400 font-light text-sm">Campaign</span></h1>
+            <img src="assets/logo.png" alt="Logo" class="w-10 h-10">
+            <h1 class="text-xl font-bold">BPC Campaign</h1>
         </div>
-
         <div class="flex items-center space-x-6">
-            <div class="flex items-center space-x-3 bg-black/20 p-2 px-4 rounded-2xl border border-white/10">
-                <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" id="campaign-label">Standard</span>
-                <button id="campaignToggle" 
-                        onclick="window.appConfig.toggleCampaignMode(localStorage.getItem('campaign_mode') !== 'true')" 
-                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none bg-slate-700">
-                    <span id="toggleKnob" class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 translate-x-1 shadow-md"></span>
+            <div class="flex items-center space-x-3 bg-black/20 p-2 px-4 rounded-2xl">
+                <span class="text-[10px] font-black text-slate-500 uppercase">Standard</span>
+                <button id="campaignToggle" onclick="window.appConfig.toggleCampaignMode(localStorage.getItem('campaign_mode') !== 'true')" 
+                        class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-700 transition-all">
+                    <span id="toggleKnob" class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 translate-x-1"></span>
                 </button>
-                <span class="text-[10px] font-black uppercase tracking-widest text-teal-400 opacity-50" id="campaign-active-label">Campaign</span>
+                <span class="text-[10px] font-black text-teal-400 uppercase">Campaign</span>
             </div>
-
-            <button onclick="window.appConfig.signOut()" class="text-xs font-bold text-slate-400 hover:text-white transition-colors">
-                Sign Out
-            </button>
+            <button onclick="window.appConfig.signOut()" class="text-xs font-bold text-slate-400 hover:text-white">Sign Out</button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-8">
-        
-        <header class="mb-12">
-            <h2 class="text-4xl font-extrabold mb-2">Territory Overview</h2>
-            <p class="text-slate-400" id="welcome-msg">Loading your assignments...</p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="glass-panel p-6 rounded-3xl">
-                <p class="text-slate-400 text-sm font-bold uppercase mb-2">Total Territories</p>
-                <h3 class="text-3xl font-black" id="stat-total">--</h3>
+    <main class="max-w-7xl mx-auto p-12">
+        <h2 class="text-4xl font-black mb-8">Territory Overview</h2>
+        <div id="territory-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
             </div>
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-teal-500">
-                <p class="text-slate-400 text-sm font-bold uppercase mb-2">Campaign Progress</p>
-                <h3 class="text-3xl font-black" id="stat-progress">0%</h3>
-            </div>
-            <div class="glass-panel p-6 rounded-3xl">
-                <p class="text-slate-400 text-sm font-bold uppercase mb-2">Active DNCs</p>
-                <h3 class="text-3xl font-black text-red-400" id="stat-dnc">--</h3>
-            </div>
-        </div>
-
-        <section id="territory-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            </section>
-
     </main>
 
     <script src="assets/app-config.js"></script>
     <script>
-        // PROTECT THE ROUTE: Only allow authenticated users
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await window.appConfig.supabase.auth.getSession();
-            
-            if (!session) {
-                // Not logged in? Boot back to login page
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Update UI with user info
-            document.getElementById('welcome-msg').innerText = `Welcome back, ${session.user.user_metadata.full_name || 'Brother'}`;
-            
-            // Initial Data Fetch
-            loadTerritoryData();
+            if (!session) { window.location.href = 'index.html'; return; }
+            loadData();
         });
 
-        async function loadTerritoryData() {
-            const { data, error } = await window.appConfig.supabase
-                .from('territories')
-                .select('*');
-
-            if (error) {
-                console.error("Fetch Error:", error);
-                return;
-            }
-
-            const container = document.getElementById('territory-container');
-            document.getElementById('stat-total').innerText = data.length;
-
-            container.innerHTML = data.map(t => `
-                <div class="glass-panel p-6 rounded-[2rem] hover:border-teal-500/50 transition-all duration-300 group">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-black bg-white/10 px-3 py-1 rounded-full text-slate-300">#${t.number}</span>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase">${t.type || 'Residential'}</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-1">${t.name}</h4>
-                    <p class="text-slate-400 text-sm mb-6">${t.description || 'No description provided.'}</p>
-                    
-                    <button class="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 rounded-2xl transition-all opacity-80 group-hover:opacity-100">
-                        View Map & Details
-                    </button>
+        async function loadData() {
+            const { data } = await window.appConfig.supabase.from('territories').select('*');
+            document.getElementById('territory-container').innerHTML = data.map(t => `
+                <div class="glass-panel p-6 rounded-3xl">
+                    <h4 class="text-xl font-bold mb-2">${t.name}</h4>
+                    <p class="text-slate-400 text-sm mb-6">${t.description || ''}</p>
+                    <button class="w-full bg-teal-500 py-3 rounded-2xl font-bold">View Territory</button>
                 </div>
             `).join('');
         }

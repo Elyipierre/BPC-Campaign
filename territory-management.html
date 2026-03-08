@@ -3,68 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPC Campaign | Dashboard</title>
+    <title>BPC Campaign | Home Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body { background: #0f172a; color: white; min-height: 100vh; transition: 0.3s; }
-        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        body.campaign-active { box-shadow: inset 0 0 80px rgba(20, 184, 166, 0.15); border-top: 4px solid #14b8a6; }
+        body { background: #0f172a; color: white; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; margin: 0; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        
+        /* State Badges */
+        .badge-state { padding: 5px 12px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .state-initial { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .state-2nd { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .state-letter { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        
+        /* Layout Grid */
+        .app-container { display: flex; min-height: calc(100vh - 72px); }
+        .sidebar { width: 280px; border-right: 1px solid rgba(255, 255, 255, 0.05); padding: 32px 24px; display: flex; flex-direction: column; gap: 8px; }
+        .main-content { flex: 1; padding: 48px; }
+        
+        /* Sidebar Navigation */
+        .nav-item { padding: 14px 18px; border-radius: 16px; font-size: 14px; font-weight: 600; color: #94a3b8; transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-item.active { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
     </style>
 </head>
 <body class="antialiased">
-    <nav class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <img src="assets/logo.png" alt="Logo" class="w-8 h-8">
-            <span class="font-bold text-lg tracking-tight">BPC Campaign</span>
+    
+    <nav class="glass-panel sticky top-0 z-50 px-8 py-4 flex items-center justify-between border-b-0">
+        <div class="flex items-center space-x-4">
+            <img src="assets/logo.png" alt="Logo" class="w-8 h-8 object-contain">
+            <span class="font-bold text-xl tracking-tight">BPC Campaign</span>
         </div>
         <div class="flex items-center space-x-6">
-            <div class="flex items-center space-x-3 bg-black/30 p-1.5 px-4 rounded-full border border-white/5">
-                <span id="campaign-label" class="text-[10px] font-black uppercase text-slate-500">Standard</span>
-                <button id="campaignToggle" onclick="window.appConfig.toggleCampaignMode(localStorage.getItem('campaign_mode') !== 'true')" class="relative inline-flex h-5 w-10 items-center rounded-full bg-slate-700 transition-all">
-                    <span id="toggleKnob" class="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-all translate-x-1"></span>
-                </button>
-                <span id="campaign-active-label" class="text-[10px] font-black uppercase text-teal-400 opacity-50">Campaign</span>
-            </div>
-            <button onclick="window.appConfig.signOut()" class="text-xs font-bold text-slate-400 hover:text-white transition-colors">Sign Out</button>
+            <span id="user-role-badge" class="hidden px-4 py-1.5 rounded-full bg-white/10 text-xs font-bold text-slate-300 tracking-wider">Publisher</span>
+            <button onclick="window.appConfig.signOut()" class="text-sm font-bold text-slate-400 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">Sign Out</button>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-10">
-        <header class="mb-12">
-            <h2 class="text-4xl font-black mb-2">Territory Overview</h2>
-            <p id="user-welcome" class="text-slate-400 text-sm">Validating session...</p>
-        </header>
-
-        <div id="territory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="app-container">
+        
+        <aside class="sidebar glass-panel border-t-0 border-l-0 border-b-0">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 px-4">Menu</p>
+            <div class="nav-item active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Home Dashboard
             </div>
-    </main>
+            <div class="nav-item" onclick="window.location.href='campaign.html'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Campaigns
+            </div>
+            
+            <div id="admin-menu" class="hidden mt-8">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 px-4">Management</p>
+                <div class="nav-item text-teal-400 hover:bg-teal-500/10 hover:text-teal-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Admin Panel
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="mb-12 flex justify-between items-end">
+                <div>
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">Available Territories</h2>
+                    <p id="user-welcome" class="text-slate-400 text-sm font-medium">Loading enabled pool...</p>
+                </div>
+            </header>
+
+            <div id="territory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </main>
+    </div>
 
     <script src="assets/app-config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await window.appConfig.supabase.auth.getSession();
+            
+            // Security Guard
             if (!session) {
                 window.location.href = 'index.html';
-            } else {
-                document.getElementById('user-welcome').innerText = `Welcome back, ${session.user.user_metadata.full_name || session.user.email}`;
-                fetchData();
+                return;
+            } 
+            
+            document.getElementById('user-welcome').innerText = `Welcome back, ${session.user.user_metadata.full_name || session.user.email}`;
+            
+            // Role check (For future robust implementation)
+            const userEmail = session.user.email.toLowerCase();
+            const isAdmin = userEmail.includes('admin') || userEmail.includes('elyipierre'); 
+            
+            if (isAdmin) {
+                document.getElementById('admin-menu').classList.remove('hidden');
+                document.getElementById('user-role-badge').innerText = "Administrator";
+                document.getElementById('user-role-badge').classList.remove('hidden');
             }
+
+            fetchEnabledTerritories();
         });
 
-        async function fetchData() {
-            const { data, error } = await window.appConfig.supabase.from('territories').select('*');
-            if (data) {
-                const container = document.getElementById('territory-grid');
-                container.innerHTML = data.map(t => `
-                    <div class="glass-panel p-6 rounded-[2rem] hover:border-teal-500/40 transition-all group">
-                        <div class="text-[10px] font-black text-slate-500 uppercase mb-2 tracking-widest">Area #${t.number || '00'}</div>
-                        <h3 class="text-xl font-bold mb-4 group-hover:text-teal-400 transition-colors">${t.name}</h3>
-                        <p class="text-slate-400 text-xs mb-6 line-clamp-2">${t.description || 'No description available.'}</p>
-                        <button class="w-full bg-white/5 hover:bg-teal-500 py-3 rounded-2xl text-sm font-bold transition-all">View Details</button>
-                    </div>
-                `).join('');
+        async function fetchEnabledTerritories() {
+            // ONLY fetch territories that are explicitly enabled by Admin/Conductor
+            const { data, error } = await window.appConfig.supabase
+                .from('territories')
+                .select('*')
+                .eq('is_enabled', true);
+
+            const container = document.getElementById('territory-grid');
+
+            if (error) {
+                console.error("Error fetching territories:", error);
+                container.innerHTML = `<p class="text-red-400">Error connecting to database.</p>`;
+                return;
             }
+
+            // Zero State
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-24 glass-panel rounded-[2rem] border-dashed border-white/10">
+                        <svg class="w-16 h-16 mx-auto text-slate-600 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">No Territories Available</h3>
+                        <p class="text-slate-400">The conductor has not enabled any territories for the pool yet.</p>
+                    </div>`;
+                return;
+            }
+
+            // Map the data into cards
+            container.innerHTML = data.map(t => {
+                // Determine badge style based on territory_state
+                let stateClass = 'bg-slate-800 text-slate-300 border border-slate-700';
+                const state = t.territory_state || 'Not Set';
+                
+                if (state === 'Initial Call') stateClass = 'state-initial';
+                if (state === '2nd Call') stateClass = 'state-2nd';
+                if (state === 'Letter Writing') stateClass = 'state-letter';
+
+                return `
+                    <div class="glass-panel p-7 rounded-[2rem] hover:border-teal-500/40 hover:shadow-[0_0_40px_rgba(20,184,166,0.08)] transition-all duration-300 group flex flex-col h-full bg-gradient-to-b from-white/[0.02] to-transparent">
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] bg-black/30 px-3.5 py-1.5 rounded-full border border-white/5">Area #${t.number || '00'}</div>
+                            <span class="badge-state ${stateClass}">${state}</span>
+                        </div>
+                        
+                        <h3 class="text-2xl font-black mb-3 group-hover:text-teal-400 transition-colors tracking-tight">${t.name}</h3>
+                        <p class="text-slate-400 text-sm mb-8 flex-grow leading-relaxed line-clamp-2">${t.description || 'Ready for publisher assignment.'}</p>
+                        
+                        <button class="w-full bg-white/5 hover:bg-teal-500 text-white py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 group/btn border border-white/5 hover:border-transparent">
+                            Select Territory
+                            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>

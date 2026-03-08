@@ -16,11 +16,10 @@
     * { box-sizing: border-box; }
 
     :root {
-      --grid-line: rgba(148, 163, 184, 0.045);
-      --territory-stroke: rgba(153, 246, 228, 0.17);
-      --territory-fill: rgba(20, 184, 166, 0.018);
-      --territory-shadow: rgba(20, 184, 166, 0.055);
-      --territory-highlight: rgba(186, 230, 253, 0.16);
+      --grid-line: rgba(148, 163, 184, 0.035);
+      --territory-stroke: rgba(153, 246, 228, 0.105);
+      --territory-fill: rgba(20, 184, 166, 0.010);
+      --territory-shadow: rgba(20, 184, 166, 0.022);
     }
 
     html, body {
@@ -39,8 +38,8 @@
       color: white;
       font-family: 'Inter', sans-serif;
       background:
-        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.14) 0%, rgba(20, 184, 166, 0.07) 16%, rgba(15, 23, 42, 0) 42%),
-        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, transparent 46%),
+        radial-gradient(circle at 50% 42%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0.06) 16%, rgba(15, 23, 42, 0) 42%),
+        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.045) 0%, transparent 46%),
         linear-gradient(180deg, #071332 0%, #081536 32%, #08142f 68%, #06112a 100%);
       isolation: isolate;
     }
@@ -53,68 +52,35 @@
 
     @keyframes glowPulse {
       0%, 100% {
-        opacity: 0.65;
+        opacity: 0.62;
         transform: translate(-50%, -50%) scale(1);
       }
       50% {
-        opacity: 0.95;
-        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 0.88;
+        transform: translate(-50%, -50%) scale(1.04);
       }
     }
 
     @keyframes mapDriftA {
-      0%, 100% {
-        transform: translate3d(0, 0, 0) rotate(-8deg) scale(1.02);
-      }
-      50% {
-        transform: translate3d(16px, -12px, 0) rotate(-6deg) scale(1.05);
-      }
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
+      50% { transform: translate3d(10px, -8px, 0) rotate(calc(var(--rot) + 1deg)) scale(calc(var(--scale) * 1.015)); }
     }
 
     @keyframes mapDriftB {
-      0%, 100% {
-        transform: translate3d(0, 0, 0) rotate(10deg) scale(0.96);
-      }
-      50% {
-        transform: translate3d(-18px, 14px, 0) rotate(8deg) scale(1);
-      }
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
+      50% { transform: translate3d(-12px, 10px, 0) rotate(calc(var(--rot) - 1deg)) scale(calc(var(--scale) * 1.02)); }
     }
 
     @keyframes mapDriftC {
-      0%, 100% {
-        transform: translate3d(0, 0, 0) rotate(-2deg) scale(0.9);
-      }
-      50% {
-        transform: translate3d(10px, 18px, 0) rotate(1deg) scale(0.94);
-      }
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot)) scale(var(--scale)); }
+      50% { transform: translate3d(8px, 12px, 0) rotate(calc(var(--rot) + 0.8deg)) scale(calc(var(--scale) * 1.012)); }
     }
 
     @keyframes mapFade {
-      0%, 100% { opacity: 0.05; }
-      25% { opacity: 0.09; }
-      50% { opacity: 0.14; }
-      75% { opacity: 0.08; }
-    }
-
-    @keyframes centerMapFade {
-      0%, 100% { opacity: 0.03; }
-      30% { opacity: 0.07; }
-      50% { opacity: 0.11; }
-      75% { opacity: 0.05; }
-    }
-
-    @keyframes sweep {
-      0% {
-        transform: translateX(-120%);
-        opacity: 0;
-      }
-      20% {
-        opacity: 0.08;
-      }
-      100% {
-        transform: translateX(220%);
-        opacity: 0;
-      }
+      0%, 100% { opacity: 0.018; }
+      35% { opacity: 0.05; }
+      50% { opacity: 0.075; }
+      75% { opacity: 0.04; }
     }
 
     .scene {
@@ -137,19 +103,19 @@
       background-image:
         linear-gradient(var(--grid-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-      background-size: 78px 78px;
-      opacity: 0.22;
-      mask-image: radial-gradient(circle at center, black 22%, rgba(0,0,0,0.72) 48%, transparent 86%);
-      -webkit-mask-image: radial-gradient(circle at center, black 22%, rgba(0,0,0,0.72) 48%, transparent 86%);
-      transform: perspective(980px) rotateX(68deg) scale(1.55);
+      background-size: 84px 84px;
+      opacity: 0.16;
+      mask-image: radial-gradient(circle at center, black 18%, rgba(0,0,0,0.68) 44%, transparent 88%);
+      -webkit-mask-image: radial-gradient(circle at center, black 18%, rgba(0,0,0,0.68) 44%, transparent 88%);
+      transform: perspective(980px) rotateX(68deg) scale(1.58);
       transform-origin: center center;
     }
 
     .scene::after {
       background:
-        radial-gradient(circle at center, rgba(20,184,166,0.08) 0%, rgba(20,184,166,0.035) 22%, transparent 52%);
-      filter: blur(36px);
-      opacity: 0.7;
+        radial-gradient(circle at center, rgba(20,184,166,0.07) 0%, rgba(20,184,166,0.03) 22%, transparent 56%);
+      filter: blur(38px);
+      opacity: 0.68;
     }
 
     .territory-overlay {
@@ -162,51 +128,36 @@
       overflow: visible;
     }
 
-    .map-cluster {
+    .map-fragment {
       transform-box: fill-box;
       transform-origin: center;
+      opacity: 0.04;
     }
 
-    .map-cluster.left {
+    .map-fragment.drift-a {
       animation:
-        mapFade 16s ease-in-out infinite,
-        mapDriftA 24s ease-in-out infinite;
+        mapFade 18s ease-in-out infinite,
+        mapDriftA 26s ease-in-out infinite;
     }
 
-    .map-cluster.right {
+    .map-fragment.drift-b {
       animation:
-        mapFade 18s ease-in-out infinite 1.8s,
-        mapDriftB 28s ease-in-out infinite;
+        mapFade 20s ease-in-out infinite 1.3s,
+        mapDriftB 30s ease-in-out infinite;
     }
 
-    .map-cluster.center {
+    .map-fragment.drift-c {
       animation:
-        centerMapFade 20s ease-in-out infinite 0.8s,
-        mapDriftC 30s ease-in-out infinite;
+        mapFade 22s ease-in-out infinite 2.1s,
+        mapDriftC 34s ease-in-out infinite;
     }
 
     .territory-path {
       fill: var(--territory-fill);
       stroke: var(--territory-stroke);
-      stroke-width: 1.2;
+      stroke-width: 1.1;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 6px var(--territory-shadow));
-    }
-
-    .territory-path.highlight {
-      stroke: var(--territory-highlight);
-      stroke-width: 1.35;
-    }
-
-    .map-sheen {
-      fill: none;
-      stroke: rgba(255,255,255,0.07);
-      stroke-width: 2.2;
-      vector-effect: non-scaling-stroke;
-      stroke-linecap: round;
-      stroke-dasharray: 90 1200;
-      animation: sweep 12s linear infinite;
-      opacity: 0;
+      filter: drop-shadow(0 0 4px var(--territory-shadow));
     }
 
     .glow-orb {
@@ -216,7 +167,7 @@
       width: 440px;
       height: 440px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.08) 34%, rgba(20,184,166,0) 72%);
+      background: radial-gradient(circle, rgba(20,184,166,0.18) 0%, rgba(20,184,166,0.07) 34%, rgba(20,184,166,0) 72%);
       filter: blur(86px);
       z-index: 3;
       pointer-events: none;
@@ -314,13 +265,13 @@
 
     @media (max-width: 900px) {
       .scene::before {
-        background-size: 60px 60px;
+        background-size: 64px 64px;
       }
     }
 
     @media (max-width: 640px) {
       .scene::before {
-        background-size: 52px 52px;
+        background-size: 54px 54px;
       }
 
       .logo-wrapper {
@@ -370,6 +321,27 @@
       return document.createElementNS('http://www.w3.org/2000/svg', tag);
     }
 
+    function seededRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function intersectsProtectedZone(x, y, w, h) {
+      const protectedZones = [
+        { x: 520, y: 120, w: 560, h: 520 },
+        { x: 610, y: 520, w: 380, h: 180 }
+      ];
+
+      return protectedZones.some(zone => {
+        return !(
+          x + w < zone.x ||
+          x > zone.x + zone.w ||
+          y + h < zone.y ||
+          y > zone.y + zone.h
+        );
+      });
+    }
+
     async function loadTerritoryPolygons() {
       const svg = document.getElementById('territoryOverlay');
       const debugNote = document.getElementById('debugNote');
@@ -412,10 +384,10 @@
           return [x, y];
         }
 
-        function buildTerritoryPath(width, height, offsetX, offsetY) {
+        function buildTerritoryFragment(width, height, offsetX, offsetY) {
           const fragment = document.createDocumentFragment();
 
-          territories.forEach((territory, index) => {
+          territories.forEach((territory) => {
             if (!Array.isArray(territory.polygon) || territory.polygon.length < 3) return;
 
             const points = territory.polygon.map(([lat, lng]) => {
@@ -432,16 +404,8 @@
 
             const path = createSvgEl('path');
             path.setAttribute('d', d);
-            path.setAttribute('class', `territory-path${index % 11 === 0 ? ' highlight' : ''}`);
+            path.setAttribute('class', 'territory-path');
             fragment.appendChild(path);
-
-            if (index % 14 === 0) {
-              const sheen = createSvgEl('path');
-              sheen.setAttribute('d', d);
-              sheen.setAttribute('class', 'map-sheen');
-              sheen.style.animationDelay = `${(index * 0.3).toFixed(2)}s`;
-              fragment.appendChild(sheen);
-            }
           });
 
           return fragment;
@@ -449,45 +413,54 @@
 
         svg.innerHTML = '';
 
-        const clusters = [
-          {
-            className: 'map-cluster left',
-            width: 420,
-            height: 520,
-            x: 360,
-            y: 120
-          },
-          {
-            className: 'map-cluster right',
-            width: 420,
-            height: 520,
-            x: 920,
-            y: 470
-          },
-          {
-            className: 'map-cluster center',
-            width: 300,
-            height: 380,
-            x: 650,
-            y: 180
-          }
-        ];
+        const viewWidth = 1600;
+        const viewHeight = 900;
+        const placements = [];
+        const fragmentCount = 10;
 
-        clusters.forEach(cluster => {
+        for (let i = 0; i < fragmentCount; i++) {
+          const width = 150 + seededRandom(i + 1) * 220;
+          const height = width * (1.08 + seededRandom(i + 20) * 0.35);
+          let x = seededRandom(i + 100) * (viewWidth - width);
+          let y = seededRandom(i + 200) * (viewHeight - height);
+
+          let tries = 0;
+          while (intersectsProtectedZone(x, y, width, height) && tries < 40) {
+            x = seededRandom(i + 100 + tries * 3.1) * (viewWidth - width);
+            y = seededRandom(i + 200 + tries * 2.7) * (viewHeight - height);
+            tries++;
+          }
+
+          placements.push({
+            x,
+            y,
+            width,
+            height,
+            rotation: -18 + seededRandom(i + 300) * 36,
+            scale: 0.8 + seededRandom(i + 400) * 0.55,
+            drift: ['drift-a', 'drift-b', 'drift-c'][i % 3]
+          });
+        }
+
+        placements.forEach((placement, index) => {
           const group = createSvgEl('g');
-          group.setAttribute('class', cluster.className);
+          group.setAttribute('class', `map-fragment ${placement.drift}`);
+          group.style.setProperty('--rot', `${placement.rotation.toFixed(2)}deg`);
+          group.style.setProperty('--scale', placement.scale.toFixed(3));
+          group.style.animationDelay = `${(index * 1.2).toFixed(2)}s, ${(index * 0.6).toFixed(2)}s`;
+
           group.appendChild(
-            buildTerritoryPath(
-              cluster.width,
-              cluster.height,
-              cluster.x,
-              cluster.y
+            buildTerritoryFragment(
+              placement.width,
+              placement.height,
+              placement.x,
+              placement.y
             )
           );
+
           svg.appendChild(group);
         });
 
-        console.log(`Loaded ${territories.length} territories from ${jsonPath}`);
         if (debugNote) {
           debugNote.style.display = 'none';
         }

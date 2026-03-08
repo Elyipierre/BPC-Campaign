@@ -16,12 +16,18 @@
     * { box-sizing: border-box; }
 
     :root {
-      --grid-line: rgba(148, 163, 184, 0.03);
-      --territory-stroke: rgba(153, 246, 228, 0.16);
-      --territory-fill: rgba(20, 184, 166, 0.02);
-      --territory-shadow: rgba(20, 184, 166, 0.035);
-      --street-text: rgba(220, 252, 231, 0.48);
-      --street-bg: rgba(10, 20, 40, 0.28);
+      --grid-line: rgba(148, 163, 184, 0.028);
+
+      --territory-base-stroke: rgba(153, 246, 228, 0.06);
+      --territory-base-fill: rgba(20, 184, 166, 0.006);
+      --territory-base-shadow: rgba(20, 184, 166, 0.012);
+
+      --territory-hi-stroke: rgba(153, 246, 228, 0.28);
+      --territory-hi-fill: rgba(20, 184, 166, 0.04);
+      --territory-hi-shadow: rgba(20, 184, 166, 0.08);
+
+      --street-text: rgba(220, 252, 231, 0.5);
+      --street-bg: rgba(10, 20, 40, 0.26);
       --street-border: rgba(255, 255, 255, 0.06);
     }
 
@@ -64,14 +70,13 @@
       }
     }
 
-    @keyframes overlayFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes overlayFadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
+    @keyframes pulseHighlight {
+      0%, 100% {
+        opacity: 0.85;
+      }
+      50% {
+        opacity: 1;
+      }
     }
 
     .scene {
@@ -119,21 +124,30 @@
       overflow: hidden;
     }
 
-    .territory-layer {
-      opacity: 0;
-      transition: opacity 2s ease;
+    .territory-base-path {
+      fill: var(--territory-base-fill);
+      stroke: var(--territory-base-stroke);
+      stroke-width: 1.05;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 0 3px var(--territory-base-shadow));
     }
 
-    .territory-layer.visible {
+    .highlight-layer {
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+
+    .highlight-layer.visible {
       opacity: 1;
     }
 
-    .territory-path {
-      fill: var(--territory-fill);
-      stroke: var(--territory-stroke);
-      stroke-width: 1.4;
+    .territory-highlight-path {
+      fill: var(--territory-hi-fill);
+      stroke: var(--territory-hi-stroke);
+      stroke-width: 1.6;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 5px var(--territory-shadow));
+      filter: drop-shadow(0 0 7px var(--territory-hi-shadow));
+      animation: pulseHighlight 4.6s ease-in-out infinite;
     }
 
     .street-label {
@@ -143,7 +157,7 @@
       text-transform: uppercase;
       fill: var(--street-text);
       paint-order: stroke;
-      stroke: rgba(5, 10, 20, 0.35);
+      stroke: rgba(5, 10, 20, 0.32);
       stroke-width: 3px;
       stroke-linejoin: round;
     }
@@ -319,12 +333,9 @@
   <script>
     const territoryStreets = {
       /*
-        Replace these with your real territory IDs or names from your JSON.
-        Example formats:
-
-        "1": ["Rockaway Blvd", "130th St", "Sutphin Blvd", "145th Ave"],
-        "14": ["Guy R Brewer Blvd", "Linden Blvd", "147th Ave"],
-        "Territory 08": ["Baisley Blvd", "150th St", "N Conduit Ave"]
+      Example:
+      "1": ["Rockaway Blvd", "130th St", "Sutphin Blvd"],
+      "2": ["Baisley Blvd", "150th St", "N Conduit Ave"]
       */
     };
 
@@ -332,12 +343,12 @@
       return document.createElementNS('http://www.w3.org/2000/svg', tag);
     }
 
-    function randomBetween(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
     function clamp(value, min, max) {
       return Math.min(max, Math.max(min, value));
+    }
+
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
     }
 
     function getTerritoryKey(territory, index) {
@@ -394,19 +405,6 @@
         x >= zone.x && x <= zone.x + zone.w &&
         y >= zone.y && y <= zone.y + zone.h
       );
-    }
-
-    function chooseDisplayRegion() {
-      const regions = [
-        { xMin: 60,  xMax: 500,  yMin: 70,  yMax: 360 },
-        { xMin: 1060, xMax: 1500, yMin: 80,  yMax: 360 },
-        { xMin: 70,  xMax: 500,  yMin: 470, yMax: 820 },
-        { xMin: 1060, xMax: 1500, yMin: 470, yMax: 820 },
-        { xMin: 260, xMax: 520,  yMin: 260, yMax: 700 },
-        { xMin: 1080, xMax: 1360, yMin: 220, yMax: 720 }
-      ];
-
-      return regions[Math.floor(Math.random() * regions.length)];
     }
 
     function buildStreetLabel(svgGroup, textValue, x, y) {
@@ -482,42 +480,82 @@
         .filter(Boolean);
     }
 
-    function createTerritoryScene(svg, territoryEntry) {
+    function layoutTerritories(entries) {
+      const regions = [
+        { xMin: 40,  xMax: 360,  yMin: 40,  yMax: 260 },
+        { xMin: 1180, xMax: 1520, yMin: 40,  yMax: 260 },
+        { xMin: 40,  xMax: 340,  yMin: 560, yMax: 820 },
+        { xMin: 1220, xMax: 1540, yMin: 560, yMax: 840 },
+        { xMin: 160, xMax: 430,  yMin: 250, yMax: 560 },
+        { xMin: 1140, xMax: 1430, yMin: 250, yMax: 560 },
+        { xMin: 420, xMax: 560,  yMin: 20,  yMax: 170 },
+        { xMin: 1040, xMax: 1180, yMin: 20,  yMax: 170 },
+        { xMin: 420, xMax: 540,  yMin: 700, yMax: 860 },
+        { xMin: 1060, xMax: 1180, yMin: 700, yMax: 860 }
+      ];
+
+      return entries.map((entry, idx) => {
+        const region = regions[idx % regions.length];
+        const width = randomBetween(180, 300);
+        const height = randomBetween(220, 360);
+
+        const offsetX = randomBetween(region.xMin, Math.max(region.xMin + 1, region.xMax - width));
+        const offsetY = randomBetween(region.yMin, Math.max(region.yMin + 1, region.yMax - height));
+
+        const projectedPoints = entry.normalized.map(([ux, uy]) => [
+          offsetX + ux * width,
+          offsetY + uy * height
+        ]);
+
+        const centroid = computeCentroid(projectedPoints);
+
+        const pathData = projectedPoints
+          .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
+          .join(' ') + ' Z';
+
+        return {
+          ...entry,
+          projectedPoints,
+          centroid,
+          width,
+          height,
+          pathData
+        };
+      });
+    }
+
+    function renderBaseTerritories(svg, entries) {
+      const baseLayer = createSvgEl('g');
+
+      entries.forEach(entry => {
+        const path = createSvgEl('path');
+        path.setAttribute('class', 'territory-base-path');
+        path.setAttribute('d', entry.pathData);
+        path.dataset.territoryKey = entry.key;
+        baseLayer.appendChild(path);
+      });
+
+      svg.appendChild(baseLayer);
+      return baseLayer;
+    }
+
+    function createHighlightLayer(entry) {
       const layer = createSvgEl('g');
-      layer.setAttribute('class', 'territory-layer');
-
-      const region = chooseDisplayRegion();
-      const baseWidth = randomBetween(220, 360);
-      const baseHeight = randomBetween(260, 420);
-
-      const offsetX = randomBetween(region.xMin, region.xMax - baseWidth);
-      const offsetY = randomBetween(region.yMin, region.yMax - baseHeight);
-
-      const projectedPoints = territoryEntry.normalized.map(([ux, uy]) => [
-        offsetX + ux * baseWidth,
-        offsetY + uy * baseHeight
-      ]);
-
-      const centroid = computeCentroid(projectedPoints);
-
-      const pathData = projectedPoints
-        .map((point, i) => `${i === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
-        .join(' ') + ' Z';
+      layer.setAttribute('class', 'highlight-layer');
 
       const path = createSvgEl('path');
-      path.setAttribute('class', 'territory-path');
-      path.setAttribute('d', pathData);
-
+      path.setAttribute('class', 'territory-highlight-path');
+      path.setAttribute('d', entry.pathData);
       layer.appendChild(path);
 
-      const streets = territoryEntry.streets.slice(0, 4);
+      const streets = entry.streets.slice(0, 4);
       if (streets.length) {
         const anchors = distributeStreetAnchors(
-          centroid[0],
-          centroid[1],
+          entry.centroid[0],
+          entry.centroid[1],
           streets.length,
-          baseWidth,
-          baseHeight
+          entry.width,
+          entry.height
         );
 
         streets.forEach((street, i) => {
@@ -528,12 +566,6 @@
         });
       }
 
-      svg.appendChild(layer);
-
-      requestAnimationFrame(() => {
-        layer.classList.add('visible');
-      });
-
       return layer;
     }
 
@@ -543,10 +575,13 @@
       if (!svg) return;
 
       try {
-        const territoryEntries = await loadTerritoryData();
-        if (!territoryEntries.length) {
+        const entries = layoutTerritories(await loadTerritoryData());
+        if (!entries.length) {
           throw new Error('No usable territory polygons found.');
         }
+
+        svg.innerHTML = '';
+        renderBaseTerritories(svg, entries);
 
         if (debugNote) {
           debugNote.style.display = 'none';
@@ -556,11 +591,10 @@
         let lastIndex = -1;
 
         function nextIndex() {
-          if (territoryEntries.length === 1) return 0;
-
-          let idx = Math.floor(Math.random() * territoryEntries.length);
+          if (entries.length === 1) return 0;
+          let idx = Math.floor(Math.random() * entries.length);
           while (idx === lastIndex) {
-            idx = Math.floor(Math.random() * territoryEntries.length);
+            idx = Math.floor(Math.random() * entries.length);
           }
           lastIndex = idx;
           return idx;
@@ -569,17 +603,20 @@
         async function cycleTerritory() {
           if (currentLayer) {
             currentLayer.classList.remove('visible');
-            await new Promise(resolve => setTimeout(resolve, 1800));
+            await new Promise(resolve => setTimeout(resolve, 1700));
             currentLayer.remove();
             currentLayer = null;
           }
 
-          const territory = territoryEntries[nextIndex()];
-          currentLayer = createTerritoryScene(svg, territory);
+          const entry = entries[nextIndex()];
+          currentLayer = createHighlightLayer(entry);
+          svg.appendChild(currentLayer);
 
-          const hasStreets = territory.streets.length > 0;
-          const visibleTime = hasStreets ? 5200 : 4200;
+          requestAnimationFrame(() => {
+            currentLayer.classList.add('visible');
+          });
 
+          const visibleTime = entry.streets.length ? 5200 : 4200;
           setTimeout(cycleTerritory, visibleTime);
         }
 

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPC Campaign | Admin Panel</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body { background: #0f172a; color: white; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; margin: 0; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        
+        .app-container { display: flex; min-height: calc(100vh - 72px); }
+        .sidebar { width: 280px; border-right: 1px solid rgba(255, 255, 255, 0.05); padding: 32px 24px; display: flex; flex-direction: column; gap: 8px; }
+        .main-content { flex: 1; padding: 48px; }
+        
+        .nav-item { padding: 14px 18px; border-radius: 16px; font-size: 14px; font-weight: 600; color: #94a3b8; transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-item.active { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
+
+        /* Custom Dropdown */
+        select { background: #1e293b; color: white; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 8px; outline: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+        select:focus { border-color: #14b8a6; }
+        
+        /* Toggle Switch styling */
+        .toggle-checkbox:checked { right: 0; border-color: #14b8a6; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #14b8a6; }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <nav class="glass-panel sticky top-0 z-50 px-8 py-4 flex items-center justify-between border-b-0">
+        <div class="flex items-center space-x-4">
+            <img src="assets/logo.png" alt="Logo" class="w-8 h-8 object-contain">
+            <span class="font-bold text-xl tracking-tight">BPC Campaign</span>
+        </div>
+        <div class="flex items-center space-x-6">
+            <span class="px-4 py-1.5 rounded-full bg-teal-500/20 text-xs font-bold text-teal-400 tracking-wider border border-teal-500/30">Administrator</span>
+            <button onclick="window.appConfig.signOut()" class="text-sm font-bold text-slate-400 hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-white/5">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <aside class="sidebar glass-panel border-t-0 border-l-0 border-b-0">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 px-4">Menu</p>
+            <div class="nav-item" onclick="window.location.href='territory-management.html'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Home Dashboard
+            </div>
+            <div class="nav-item" onclick="window.location.href='campaign.html'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Campaigns
+            </div>
+            
+            <div class="mt-8">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 px-4">Management</p>
+                <div class="nav-item active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Admin Panel
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">Territory Management</h2>
+                    <p class="text-slate-400 text-sm font-medium">Control the publisher pool and define territory states.</p>
+                </div>
+            </header>
+
+            <div class="glass-panel rounded-3xl overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-black/20">
+                            <th class="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5">Area</th>
+                            <th class="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5">Name</th>
+                            <th class="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5">Territory State</th>
+                            <th class="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5">Status (Pool)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-white/5">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-500">Loading territories...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/app-config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await window.appConfig.supabase.auth.getSession();
+            
+            // 1. Strict Security Guard
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            } 
+            
+            // 2. Admin Verification Guard
+            const userEmail = session.user.email.toLowerCase();
+            const isAdmin = userEmail.includes('admin') || userEmail.includes('elyipierre'); 
+            
+            if (!isAdmin) {
+                alert("Unauthorized Access. Redirecting to Home Dashboard.");
+                window.location.replace('territory-management.html');
+                return;
+            }
+
+            fetchAdminTerritories();
+        });
+
+        async function fetchAdminTerritories() {
+            // Fetch ALL territories for the Admin to manage
+            const { data, error } = await window.appConfig.supabase
+                .from('territories')
+                .select('*')
+                .order('name', { ascending: true });
+
+            if (error) {
+                console.error("Error fetching data:", error);
+                return;
+            }
+
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = data.map(t => {
+                const isEnabled = t.is_enabled === true;
+                const state = t.territory_state || '';
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors">
+                        <td class="p-5 font-black text-slate-500">#${t.number || '00'}</td>
+                        <td class="p-5 font-bold text-white">${t.name}</td>
+                        <td class="p-5">
+                            <select onchange="updateTerritoryState('${t.id}', this.value)">
+                                <option value="" ${state === '' ? 'selected' : ''}>-- Not Set --</option>
+                                <option value="Initial Call" ${state === 'Initial Call' ? 'selected' : ''}>Initial Call</option>
+                                <option value="2nd Call" ${state === '2nd Call' ? 'selected' : ''}>2nd Call</option>
+                                <option value="Letter Writing" ${state === 'Letter Writing' ? 'selected' : ''}>Letter Writing</option>
+                            </select>
+                        </td>
+                        <td class="p-5">
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle-${t.id}" 
+                                       class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 z-10" 
+                                       ${isEnabled ? 'checked' : ''}
+                                       onchange="toggleTerritoryStatus('${t.id}', this.checked)"/>
+                                <label for="toggle-${t.id}" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-700 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                            <span class="text-xs font-bold ${isEnabled ? 'text-teal-400' : 'text-slate-500'}" id="label-${t.id}">
+                                ${isEnabled ? 'IN POOL' : 'DISABLED'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Database Update Functions
+        async function updateTerritoryState(id, newState) {
+            const val = newState === "" ? null : newState;
+            const { error } = await window.appConfig.supabase
+                .from('territories')
+                .update({ territory_state: val })
+                .eq('id', id);
+
+            if (error) alert("Failed to update state: " + error.message);
+        }
+
+        async function toggleTerritoryStatus(id, isEnabled) {
+            const { error } = await window.appConfig.supabase
+                .from('territories')
+                .update({ is_enabled: isEnabled })
+                .eq('id', id);
+
+            if (error) {
+                alert("Failed to update status: " + error.message);
+                document.getElementById(`toggle-${id}`).checked = !isEnabled; // Revert switch
+            } else {
+                // Update UI Label
+                const label = document.getElementById(`label-${id}`);
+                label.innerText = isEnabled ? 'IN POOL' : 'DISABLED';
+                label.className = `text-xs font-bold ${isEnabled ? 'text-teal-400' : 'text-slate-500'}`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,41 +1,66 @@
-(function initTerritoryAppConfig(globalScope) {
-  const checkedInDefaults = Object.freeze({
-    // Leave blank so the app auto-detects the active origin.
-    // On GitHub Pages this repo resolves to:
-    // https://elyipierre.github.io/BPC-Campaign/
-    // On localhost it resolves to:
-    // http://127.0.0.1:4173/
-    siteBaseUrl: "",
-    githubPagesBasePath: "",
-    managerPagePath: "Territory%20Management.html",
-    campaignPagePath: "campaign.html",
-    localhostBaseUrl: "http://127.0.0.1:4173/",
-    // Fill these with your public Supabase project values to enable
-    // live multi-device campaign sync on GitHub Pages.
-    supabaseUrl: "https://dlncebwzunuxouyxteir.supabase.co",
-    supabaseAnonKey: "sb_publishable_HC_hjbW81AxoTu3dpX3g6Q_n3D9EQWl"
-  });
-  const existing = globalScope && globalScope.TERRITORY_APP_CONFIG && typeof globalScope.TERRITORY_APP_CONFIG === "object"
-    ? { ...checkedInDefaults, ...globalScope.TERRITORY_APP_CONFIG }
-    : {};
+/**
+ * BPC Campaign - App Configuration & Supabase Initialization
+ * Replace the placeholder keys with your actual Supabase Project details.
+ */
 
-  const protocol = globalScope && globalScope.location ? String(globalScope.location.protocol || "") : "";
-  const origin = globalScope && globalScope.location ? String(globalScope.location.origin || "") : "";
-  const pathname = globalScope && globalScope.location ? String(globalScope.location.pathname || "/") : "/";
-  const defaultBasePath = pathname.replace(/[^/]*$/, "");
-  const configuredBasePath = String(existing.githubPagesBasePath || defaultBasePath || "/").trim() || "/";
-  const normalizedBasePath = `/${configuredBasePath.replace(/^\/+|\/+$/g, "")}${configuredBasePath === "/" ? "" : "/"}`.replace(/\/{2,}/g, "/");
-  const derivedSiteBaseUrl = /^https?:$/i.test(protocol) && origin
-    ? `${origin}${normalizedBasePath === "/" ? "/" : normalizedBasePath}`
-    : "";
+// 1. Configuration Constants
+const SUPABASE_URL = "https://dlncebwzunuxouyxteir.supabase.co";
+// Use your Project API Key (anon/public) from Supabase Settings > API
+const SUPABASE_ANON_KEY = "your-anon-key-here"; 
 
-  globalScope.TERRITORY_APP_CONFIG = Object.freeze({
-    siteBaseUrl: String(existing.siteBaseUrl || derivedSiteBaseUrl || "").trim(),
-    githubPagesBasePath: normalizedBasePath,
-    managerPagePath: String(existing.managerPagePath || checkedInDefaults.managerPagePath).trim(),
-    campaignPagePath: String(existing.campaignPagePath || checkedInDefaults.campaignPagePath).trim(),
-    localhostBaseUrl: String(existing.localhostBaseUrl || checkedInDefaults.localhostBaseUrl).trim(),
-    supabaseUrl: String(existing.supabaseUrl || checkedInDefaults.supabaseUrl).trim(),
-    supabaseAnonKey: String(existing.supabaseAnonKey || checkedInDefaults.supabaseAnonKey).trim()
-  });
-})(window);
+// 2. Initialize the Supabase Client
+// Note: This assumes you have included the Supabase CDN in your HTML files:
+// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/**
+ * Trigger Google OAuth Login
+ * This will redirect the user to Google's login page.
+ * Ensure you have added the Redirect URI in Supabase & Google Cloud Console.
+ */
+async function signInWithGoogle() {
+    try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                // This is where Google sends the user back after a successful login
+                redirectTo: window.location.origin + '/Territory%20Management.html',
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+            },
+        });
+
+        if (error) throw error;
+    } catch (error) {
+        console.error("Authentication Error:", error.message);
+        alert("Failed to sign in with Google: " + error.message);
+    }
+}
+
+/**
+ * Sign Out Function
+ */
+async function signOutUser() {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error("Error signing out:", error.message);
+    window.location.href = 'index.html'; // Redirect to login page
+}
+
+/**
+ * Helper to check if a user is currently logged in
+ */
+async function getCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+}
+
+// Export functions for use in other scripts if using modules, 
+// otherwise they are globally available via the window object.
+window.appConfig = {
+    supabase,
+    signInWithGoogle,
+    signOutUser,
+    getCurrentUser
+};

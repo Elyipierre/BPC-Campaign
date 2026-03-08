@@ -50,7 +50,7 @@
         // Check session: if already logged in, skip to main app
         window.onload = async () => {
             const { data: { session } } = await window.appConfig.supabase.auth.getSession();
-            if (session) window.location.href = 'Territory%20Management.html';
+            if (session) window.location.href = 'territory-management.html';
         };
     </script>
 </body>

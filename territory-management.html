@@ -7888,7 +7888,7 @@
       selector.innerHTML = '<option value="" disabled selected>-- Select a Territory --</option>';
       let selectedTerritory = null;
       let hasSelected = false;
-      const sortedTerritories = getSortedTerritories(db);
+      const sortedTerritories = getSortedTerritories(db).filter(t => t.is_enabled === true);
       sortedTerritories.forEach((territory, index) => {
         const isSelected = territory.id === selectedId;
         const normalizedPolygon = normalizePolygonCoords(territory.polygon);

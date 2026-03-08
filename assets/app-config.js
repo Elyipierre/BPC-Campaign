@@ -12,7 +12,7 @@ window.appConfig = {
     signInWithGoogle: async () => {
         if (!supabaseClient) return alert("Supabase library not loaded.");
         
-        // Dynamically routes back to your exact dashboard URL
+        // Dynamically routes back to your exact dashboard URL, regardless of local or GitHub host
         const basePath = window.location.pathname.replace('index.html', '');
         const targetUrl = `${window.location.origin}${basePath}territory-management.html`;
 

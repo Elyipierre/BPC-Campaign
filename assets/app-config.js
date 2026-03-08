@@ -16,7 +16,7 @@ window.appConfig = {
         const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/Territory%20Management.html'
+                redirectTo: window.location.origin + '/territory-management.html'
             }
         });
         if (error) {

@@ -3,57 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPC Campaign | Secure Login</title>
+    <title>BPC Campaign | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
-        .glass-card {
+        .glass {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .animate-pulse-slow {
-            animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
-    <div class="absolute top-0 left-0 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
-
-    <div class="glass-card p-10 rounded-[2rem] w-full max-w-md text-center relative z-10">
-        <div class="mb-8">
-            <div class="w-20 h-20 bg-gradient-to-tr from-teal-400 to-blue-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
-                <span class="text-white text-3xl font-bold">BPC</span>
+    <div class="glass p-12 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl border border-white/10">
+        <div class="mb-10">
+            <div class="w-28 h-28 mx-auto mb-6 overflow-hidden rounded-3xl shadow-inner bg-white/5 flex items-center justify-center p-4 border border-white/10">
+                <img src="assets/logo.png" alt="BPC Logo" class="w-full h-full object-contain">
             </div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">Campaign Pro</h1>
-            <p class="text-slate-400 mt-2">Territory Management Redefined</p>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight">BPC Campaign</h1>
+            <p class="text-slate-400 mt-3 font-medium">Territory Management Pro</p>
         </div>
 
         <button onclick="window.appConfig.signInWithGoogle()" 
-                class="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-3">
-            Continue with Google
+                class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-white/5">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 mr-4">
+            Sign in with Google
         </button>
 
-        <div class="mt-8 pt-8 border-t border-white/10">
-            <p class="text-xs text-slate-500 uppercase tracking-widest">Authorized Access Only</p>
+        <div class="mt-12 pt-8 border-t border-white/5">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Secure Administrative Gateway</span>
         </div>
     </div>
 
     <script src="assets/app-config.js"></script>
     <script>
-        // Check if already logged in
+        // Check session: if already logged in, skip to main app
         window.onload = async () => {
             const { data: { session } } = await window.appConfig.supabase.auth.getSession();
             if (session) window.location.href = 'Territory%20Management.html';

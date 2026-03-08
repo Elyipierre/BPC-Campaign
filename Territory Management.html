@@ -1,0 +1,22 @@
+/* Campaign Mode Styling */
+body.campaign-active {
+    border: 4px solid #14b8a6; /* Teal border around the screen */
+}
+
+body.campaign-active .territory-card {
+    border-color: rgba(20, 184, 166, 0.4);
+    box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
+}
+
+/* Campaign Toggle Switch UI */
+.campaign-badge {
+    display: none;
+    background: #14b8a6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+body.campaign-active .campaign-badge { display: inline-block; }

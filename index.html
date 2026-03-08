@@ -13,96 +13,44 @@
   <script src="assets/app-config.js"></script>
   
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #eef2ef;
-      --card: #ffffff;
-      --ink: #15233a;
-      --border: rgba(21, 35, 58, 0.12);
-    }
-    
+    :root { color-scheme: light; --bg: #eef2ef; --card: #ffffff; --ink: #15233a; --border: rgba(21, 35, 58, 0.12); }
     * { box-sizing: border-box; }
     
     body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
+      margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
       background: radial-gradient(circle at top left, rgba(31, 122, 103, 0.08), transparent 40%), linear-gradient(180deg, #f4f6f5 0%, var(--bg) 100%);
-      color: var(--ink);
-      font: 500 16px/1.5 'Inter', sans-serif;
+      color: var(--ink); font: 500 16px/1.5 'Inter', sans-serif;
     }
 
     main {
-      width: min(100%, 380px); /* Slightly narrower for a more focused card */
-      padding: 48px 32px;
-      border-radius: 28px;
-      border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--card) 98%, transparent);
+      width: min(100%, 380px); padding: 48px 32px; border-radius: 28px;
+      border: 1px solid var(--border); background: color-mix(in srgb, var(--card) 98%, transparent);
       box-shadow: 0 20px 40px rgba(21, 35, 58, 0.06);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 48px; /* Perfect breathing room between logo and button */
+      display: flex; flex-direction: column; align-items: center; gap: 48px;
     }
 
     .logo-container {
-      width: 160px;
-      height: 160px;
-      background: rgba(31, 122, 103, 0.03);
-      border-radius: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(31, 122, 103, 0.1);
-      box-shadow: inset 0 4px 20px rgba(255, 255, 255, 0.6), 0 10px 24px rgba(31, 122, 103, 0.06);
-      padding: 20px;
+      width: 160px; height: 160px; background: rgba(31, 122, 103, 0.03); border-radius: 36px;
+      display: flex; align-items: center; justify-content: center; border: 1px solid rgba(31, 122, 103, 0.1);
+      box-shadow: inset 0 4px 20px rgba(255, 255, 255, 0.6), 0 10px 24px rgba(31, 122, 103, 0.06); padding: 20px;
     }
 
-    .logo-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      /* Adds a tiny drop shadow to your actual logo image to make it pop */
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); 
-    }
+    .logo-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
 
     .btn {
-      background: #ffffff;
-      color: #3c4043; /* Standard Google Text Color */
-      border: 1px solid #dadce0;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      background: #ffffff; color: #3c4043; border: 1px solid #dadce0; padding: 12px 24px; border-radius: 12px;
+      font-weight: 600; font-size: 15px; font-family: 'Inter', sans-serif; cursor: pointer; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       transition: all 0.2s ease;
     }
-
-    .btn:hover { 
-      transform: translateY(-1px); 
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); 
-      background: #f8f9fa;
-    }
-
-    .btn:active { 
-      transform: translateY(1px); 
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); background: #f8f9fa; }
+    .btn:active { transform: translateY(1px); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); }
   </style>
 </head>
 <body>
   <main>
     <div class="logo-container">
-      <img src="assets/logo.png" alt="BPC Campaign Logo">
+      <img src="assets/logo.png" alt="Logo">
     </div>
     
     <button class="btn" onclick="window.appConfig.signInWithGoogle()">
@@ -117,7 +65,6 @@
   </main>
   
   <script>
-    // Protect route: Skip login if already authenticated
     window.onload = async () => {
       if (window.appConfig && window.appConfig.supabase) {
           const { data: { session } } = await window.appConfig.supabase.auth.getSession();

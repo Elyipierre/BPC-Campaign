@@ -75,6 +75,15 @@
       50% { opacity: 1; }
     }
 
+    @keyframes baseTerritoriesStartupFade {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
     .scene {
       position: absolute;
       inset: 0;
@@ -118,6 +127,11 @@
       z-index: 2;
       pointer-events: none;
       overflow: hidden;
+    }
+
+    .base-layer-startup {
+      opacity: 0;
+      animation: baseTerritoriesStartupFade 2.4s ease-out forwards;
     }
 
     .territory-base-path {
@@ -513,6 +527,7 @@
 
     function renderBaseTerritories(svg, entries) {
       const baseLayer = createSvgEl('g');
+      baseLayer.setAttribute('class', 'base-layer-startup');
 
       entries.forEach(entry => {
         const path = createSvgEl('path');
